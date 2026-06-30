@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AURATEK — Engineered for Silence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #C0A060;
+    --gold-dim: rgba(192,160,96,0.8);
+    --gold-faint: rgba(192,160,96,0.15);
+    --dark: #030303;
+    --text-shadow: 0 0 40px rgba(0,0,0,0.8);
+  }
+
+  html { scroll-behavior: auto; }
+
+  body {
+    background: var(--dark);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── LOADING SCREEN ── */
+  #loading-screen {
+    position: fixed;
+    inset: 0;
+    background: #030303;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    transition: opacity 0.8s ease;
+  }
+  #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+
+  #loading-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    font-weight: 400;
+  }
+
+  #loading-bar-wrap {
+    width: 200px;
+    height: 1px;
+    background: rgba(192,160,96,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  #loading-bar-fill {
+    position: absolute;
+    left: 0; top: 0;
+    height: 100%;
+    width: 0%;
+    background: var(--gold);
+    transition: width 0.1s linear;
+  }
+
+  #loading-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.15em;
+  }
+
+  /* ── FIXED HEADER ── */
+  #header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    z-index: 200;
+    background: transparent;
+  }
+  #header-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    font-weight: 400;
+    text-decoration: none;
+  }
+  #header-shop {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  #header-shop:hover { color: rgba(255,255,255,0.9); }
+
+  /* ── SCROLL PROGRESS BAR ── */
+  #scroll-progress {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 2px;
+    height: 100vh;
+    background: rgba(192,160,96,0.15);
+    z-index: 100;
+  }
+  #scroll-progress-fill {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 0%;
+    background: rgba(192,160,96,0.8);
+    transition: height 0.05s linear;
+  }
+
+  /* ── HERO / VIDEO SECTION ── */
+  #hero {
+    position: relative;
+    height: 800vh;
+  }
+
+  #hero-sticky {
+    position: sticky;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #video-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #030303;
+  }
+
+  /* hidden video for frame extraction */
+  #source-video {
+    display: none;
+    position: absolute;
+    visibility: hidden;
+  }
+
+  /* ── TEXT OVERLAYS ── */
+  .overlay {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    will-change: opacity, transform;
+  }
+
+  /* T1: AURATEK big title — top center 5% */
+  #t1 {
+    top: 8%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(60px, 10vw, 120px);
+    letter-spacing: 0.3em;
+    color: rgba(192,160,96,0.9);
+    text-shadow: var(--text-shadow);
+    white-space: nowrap;
+  }
+
+  /* T2: One headphone — bottom left 18% */
+  #t2 {
+    left: 8%;
+    bottom: 15%;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(26px, 3.5vw, 42px);
+    color: rgba(255,255,255,0.85);
+    text-shadow: var(--text-shadow);
+    line-height: 1.3;
+  }
+  #t2 .word { display: inline-block; opacity: 0; transform: translateY(10px); }
+  #t2 br { display: block; }
+
+  /* T3: Forty components — top right 30% */
+  #t3 {
+    right: 8%;
+    top: 20%;
+    text-align: right;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 3vw, 38px);
+    color: rgba(192,160,96,0.8);
+    text-shadow: var(--text-shadow);
+    line-height: 1.3;
+    transform: translateX(40px);
+  }
+
+  /* T4: Watch precision — bottom left 45% */
+  #t4 {
+    left: 8%;
+    bottom: 8%;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: rgba(255,255,255,0.5);
+    text-shadow: var(--text-shadow);
+  }
+
+  /* T5: Open. Align. Listen. — left center 58% */
+  #t5 {
+    left: 8%;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(40px, 5.5vw, 64px);
+    color: rgba(255,255,255,0.9);
+    text-shadow: var(--text-shadow);
+    line-height: 1.4;
+  }
+  #t5 .wal { display: block; opacity: 0; }
+
+  /* T6: Thirty seconds — top center 72% */
+  #t6 {
+    top: 12%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(28px, 3.5vw, 44px);
+    color: rgba(192,160,96,0.85);
+    text-shadow: var(--text-shadow);
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+
+  /* T7: AURATEK Engineered — bottom right 85% */
+  #t7 {
+    right: 8%;
+    bottom: 12%;
+    text-align: right;
+    font-family: 'Cormorant Garamond', serif;
+    color: rgba(255,255,255,0.95);
+    text-shadow: var(--text-shadow);
+    line-height: 1.2;
+  }
+  #t7 .t7-main {
+    font-size: clamp(44px, 5.5vw, 72px);
+    display: block;
+    overflow: hidden;
+  }
+  #t7 .t7-sub {
+    font-size: clamp(16px, 2vw, 24px);
+    display: block;
+    overflow: hidden;
+  }
+  #t7 .char { display: inline-block; opacity: 0; }
+
+  /* T8: FIND YOUR SOUND button — center 95% */
+  #t8 {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  #t8 a {
+    display: inline-block;
+    border: 1px solid rgba(192,160,96,0.6);
+    padding: 18px 48px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.9);
+    text-decoration: none;
+    background: transparent;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+  }
+  #t8 a:hover {
+    background: rgba(192,160,96,0.15);
+    border-color: rgba(192,160,96,0.9);
+  }
+
+  /* ── PRODUCT CAROUSEL ── */
+  #collection {
+    background: var(--dark);
+    padding: 120px 48px 100px;
+  }
+
+  .collection-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .collection-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.25em;
+    margin-bottom: 16px;
+  }
+  .collection-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(40px, 5vw, 64px);
+    color: #fff;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .cards-wrap {
+    display: flex;
+    gap: 32px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 40px;
+    scrollbar-width: none;
+  }
+  .cards-wrap::-webkit-scrollbar { display: none; }
+  .cards-wrap > .card:first-child { margin-left: auto; }
+  .cards-wrap > .card:last-child  { margin-right: auto; }
+
+  .card {
+    flex: 0 0 380px;
+    height: 560px;
+    scroll-snap-align: center;
+    border-radius: 2px;
+    padding: 40px 36px 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1),
+                box-shadow 0.4s cubic-bezier(0.16,1,0.3,1);
+    overflow: hidden;
+  }
+  .card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 24px 60px rgba(192,160,96,0.12), 0 0 0 1px rgba(192,160,96,0.4);
+  }
+
+  .card-studio {
+    background: linear-gradient(160deg, #0a0800, #1a1200);
+    border-top: 1px solid var(--gold);
+  }
+  .card-field {
+    background: linear-gradient(160deg, #080808, #120e00);
+    box-shadow: 0 0 0 1px rgba(192,160,96,0.3);
+  }
+  .card-night {
+    background: linear-gradient(160deg, #05050f, #0a0818);
+    box-shadow: 0 0 0 1px rgba(100,100,180,0.2);
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    border: 1px solid rgba(192,160,96,0.4);
+    padding: 4px 8px;
+  }
+
+  .card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 72px;
+    font-weight: 400;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .card-studio .card-name { color: var(--gold); }
+  .card-field .card-name { color: var(--gold); }
+  .card-night .card-name { color: #fff; }
+
+  .card-series {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 32px;
+  }
+
+  .card-specs {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  .card-bottom { display: flex; flex-direction: column; gap: 16px; }
+
+  .card-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    color: #fff;
+    font-weight: 400;
+  }
+
+  .card-cta {
+    display: inline-block;
+    border: 1px solid rgba(192,160,96,0.5);
+    padding: 12px 24px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.8);
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s;
+    text-align: center;
+    text-decoration: none;
+  }
+  .card-cta:hover {
+    background: rgba(192,160,96,0.12);
+    border-color: var(--gold);
+  }
+
+  .card-edition {
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ── NEWSLETTER ── */
+  #newsletter {
+    background-image:
+      linear-gradient(to bottom,
+        rgba(3,3,3,0.88) 0%,
+        rgba(3,3,3,0.60) 35%,
+        rgba(3,3,3,0.65) 65%,
+        rgba(3,3,3,0.95) 100%),
+      url('newsletter-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 140px 48px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .nl-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 52px);
+    color: #fff;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .nl-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  .nl-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nl-input {
+    width: 320px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--gold);
+    padding: 10px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #fff;
+    outline: none;
+    letter-spacing: 0.05em;
+  }
+  .nl-input::placeholder { color: rgba(255,255,255,0.25); }
+
+  .nl-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--gold);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 10px 0;
+    position: relative;
+    transition: opacity 0.3s;
+  }
+  .nl-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 8px; left: 0; right: 0;
+    height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .nl-btn:hover::after { transform: scaleX(1); }
+
+  /* ── FOOTER ── */
+  #footer {
+    border-top: 1px solid rgba(192,160,96,0.15);
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: var(--dark);
+  }
+
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    font-weight: 400;
+  }
+
+  .footer-copy {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+
+  .footer-social {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.1em;
+  }
+  .footer-social a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-social a:hover {
+    color: rgba(255,255,255,0.9);
+    text-decoration: underline;
+  }
+
+  /* mobile */
+  @media (max-width: 768px) {
+    /* Header */
+    #header { padding: 0 20px; height: 56px; }
+
+    /* Text overlays */
+    #t1 { white-space: normal; width: 90%; left: 5%; transform: none; font-size: clamp(36px, 10vw, 72px); }
+    #t2 { left: 5%; font-size: clamp(20px, 4vw, 32px); }
+    #t3 { right: 5%; font-size: clamp(18px, 3.5vw, 28px); }
+    #t4 { left: 5%; font-size: 10px; }
+    #t5 { left: 5%; font-size: clamp(30px, 6vw, 52px); }
+    #t6 { white-space: normal; width: 84%; left: 8%; transform: none; font-size: clamp(20px, 4vw, 34px); text-align: center; }
+    #t7 { right: 5%; }
+    #t7 .t7-main { font-size: clamp(34px, 7vw, 56px); }
+    #t8 a { padding: 14px 32px; font-size: 12px; }
+
+    /* Collection */
+    #collection { padding: 80px 20px; }
+    .collection-title { font-size: clamp(30px, 7vw, 48px); }
+    .cards-wrap { padding: 20px; gap: 20px; }
+    .cards-wrap > .card:first-child { margin-left: 0; }
+    .cards-wrap > .card:last-child  { margin-right: 0; }
+    .card { flex: 0 0 300px; height: auto; min-height: 480px; }
+    .card-name { font-size: 60px; }
+
+    /* Newsletter */
+    #newsletter { padding: 100px 20px; }
+    .nl-input { width: 100%; max-width: 280px; }
+    .nl-form { flex-direction: column; align-items: center; gap: 16px; }
+
+    /* Footer */
+    #footer { padding: 32px 20px; flex-direction: column; text-align: center; gap: 12px; }
+    .footer-copy { text-align: center; }
+  }
+
+  @media (max-width: 480px) {
+    .card { flex: 0 0 270px; }
+    .card-name { font-size: 52px; }
+    #t1 { font-size: clamp(28px, 9vw, 52px); }
+    #t5 { font-size: clamp(26px, 7vw, 44px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div id="loading-brand">AURATEK</div>
+  <div id="loading-bar-wrap">
+    <div id="loading-bar-fill"></div>
+  </div>
+  <div id="loading-label">Preparing your sound...</div>
+</div>
+
+<!-- FIXED HEADER -->
+<header id="header">
+  <a id="header-brand" href="#">AURATEK</a>
+  <a id="header-shop" href="#collection">SHOP</a>
+</header>
+
+<!-- SCROLL PROGRESS -->
+<div id="scroll-progress">
+  <div id="scroll-progress-fill"></div>
+</div>
+
+<!-- HERO VIDEO SECTION -->
+<section id="hero">
+  <div id="hero-sticky">
+    <canvas id="video-canvas"></canvas>
+
+    <!-- TEXT OVERLAYS -->
+
+    <!-- T1: AURATEK big — 5% -->
+    <div class="overlay" id="t1">AURATEK</div>
+
+    <!-- T2: One headphone — 18% -->
+    <div class="overlay" id="t2">
+      <span class="word">One</span> <span class="word">headphone.</span><br/>
+      <span class="word">Every</span> <span class="word">detail</span> <span class="word">intentional.</span>
+    </div>
+
+    <!-- T3: Forty components — 30% -->
+    <div class="overlay" id="t3">
+      Forty components.<br/>One obsession.
+    </div>
+
+    <!-- T4: Watch precision — 45% -->
+    <div class="overlay" id="t4">Watch precision take shape.</div>
+
+    <!-- T5: Open Align Listen — 58% -->
+    <div class="overlay" id="t5">
+      <span class="wal" id="wal-open">Open.</span>
+      <span class="wal" id="wal-align">Align.</span>
+      <span class="wal" id="wal-listen">Listen.</span>
+    </div>
+
+    <!-- T6: Thirty seconds — 72% -->
+    <div class="overlay" id="t6">
+      Thirty seconds.<br/>Then you will hear the difference.
+    </div>
+
+    <!-- T7: AURATEK Engineered — 85% -->
+    <div class="overlay" id="t7">
+      <span class="t7-main" id="t7-main"></span>
+      <span class="t7-sub" id="t7-sub"></span>
+    </div>
+
+    <!-- T8: CTA — 95% -->
+    <div class="overlay" id="t8">
+      <a href="#collection">FIND YOUR SOUND →</a>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT CAROUSEL -->
+<section id="collection">
+  <div class="collection-header">
+    <p class="collection-eyebrow">The Collection</p>
+    <h2 class="collection-title">Choose your sound.</h2>
+  </div>
+  <div class="cards-wrap">
+
+    <div class="card card-studio">
+      <div>
+        <div class="card-name">STUDIO</div>
+        <div class="card-series">Reference Monitor Series</div>
+        <div class="card-specs">40mm Driver. Titanium Dome. Leather Cup. Closed Back.</div>
+      </div>
+      <div class="card-bottom">
+        <div class="card-price">Rs. 24,990</div>
+        <a class="card-cta" href="#">Add to Cart</a>
+        <div class="card-edition">1 Pair · Handcrafted · Signature Edition</div>
+      </div>
+    </div>
+
+    <div class="card card-field">
+      <div class="card-badge">Bestseller</div>
+      <div>
+        <div class="card-name">FIELD</div>
+        <div class="card-series">Active Noise Cancelling Series</div>
+        <div class="card-specs">Hybrid ANC. 40H Battery. Foldable. USB-C.</div>
+      </div>
+      <div class="card-bottom">
+        <div class="card-price">Rs. 19,990</div>
+        <a class="card-cta" href="#">Add to Cart</a>
+        <div class="card-edition">1 Pair · Wireless · ANC Edition</div>
+      </div>
+    </div>
+
+    <div class="card card-night">
+      <div>
+        <div class="card-name">NIGHT</div>
+        <div class="card-series">Deep Sleep Audio Series</div>
+        <div class="card-specs">Open Back. Planar Driver. Velour Cup. Midnight Black.</div>
+      </div>
+      <div class="card-bottom">
+        <div class="card-price">Rs. 29,990</div>
+        <a class="card-cta" href="#">Add to Cart</a>
+        <div class="card-edition">1 Pair · Planar Magnetic · Night Edition</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter">
+  <h2 class="nl-title">Join the frequency.</h2>
+  <p class="nl-sub">Be the first to hear. No noise. Only sound.</p>
+  <form class="nl-form" onsubmit="return false;">
+    <input class="nl-input" type="email" placeholder="your@email.com"/>
+    <button class="nl-btn">Tune In →</button>
+  </form>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer">
+  <div class="footer-brand">AURATEK</div>
+  <div class="footer-copy">© 2026 Auratek. Built for those who truly listen.</div>
+  <div class="footer-social">
+    <a href="#">Instagram</a> · <a href="#">YouTube</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── CONSTANTS ── */
+  const CANVAS = document.getElementById('video-canvas');
+  const CTX    = CANVAS.getContext('2d');
+  const BAR    = document.getElementById('loading-bar-fill');
+  const LOADER = document.getElementById('loading-screen');
+
+  let frames        = [];
+  let totalFrames   = 0;
+  let videoReady    = false;
+  let raf           = null;
+  let lastProgress  = -1;
+
+  /* ── RESIZE CANVAS ── */
+  function resizeCanvas () {
+    CANVAS.width  = window.innerWidth;
+    CANVAS.height = window.innerHeight;
+    if (frames.length > 0) drawFrame(lastProgress < 0 ? 0 : lastProgress);
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  /* ── DRAW A FRAME INDEX ── */
+  function drawFrame (progress) {
+    if (!frames.length) return;
+    const idx = Math.min(Math.floor(progress * (frames.length - 1)), frames.length - 1);
+    CTX.clearRect(0, 0, CANVAS.width, CANVAS.height);
+
+    const img = frames[idx];
+    if (!img) return;
+
+    // cover-fit
+    const cw = CANVAS.width, ch = CANVAS.height;
+    const iw = img.width,    ih = img.height;
+    const scale = Math.max(cw / iw, ch / ih);
+    const dw = iw * scale, dh = ih * scale;
+    const dx = (cw - dw) / 2, dy = (ch - dh) / 2;
+    CTX.drawImage(img, dx, dy, dw, dh);
+  }
+
+  /* ── EXTRACT FRAMES ── */
+  async function extractFrames () {
+    // Create a fresh video element in JS — avoids preload/source-element edge cases
+    const vid       = document.createElement('video');
+    vid.src         = 'headphone-story-final.mp4';
+    vid.muted       = true;
+    vid.playsInline = true;
+    vid.preload     = 'auto';
+
+    // Bail only if the file itself fails to load
+    let metaTimer = null;
+    const metaOk = await new Promise(function (resolve) {
+      vid.addEventListener('error', function () { resolve(false); }, { once: true });
+      metaTimer = setTimeout(function () { resolve(false); }, 10000);
+      vid.addEventListener('loadedmetadata', function () {
+        clearTimeout(metaTimer);
+        resolve(true);
+      }, { once: true });
+      vid.load();
+    });
+
+    if (!metaOk || !vid.duration || !isFinite(vid.duration)) {
+      BAR.style.width = '100%';
+      LOADER.classList.add('fade-out');
+      setTimeout(function () { LOADER.style.display = 'none'; }, 820);
+      drawFallback(0);
+      return;
+    }
+
+    const duration  = vid.duration;
+    const fps       = 10;
+    totalFrames     = Math.floor(duration * fps);
+
+    // Half-res offscreen canvas — 4× fewer pixels, faster extraction
+    const offCanvas    = document.createElement('canvas');
+    offCanvas.width    = Math.round((vid.videoWidth  || 1280) / 2);
+    offCanvas.height   = Math.round((vid.videoHeight || 720)  / 2);
+    const offCtx       = offCanvas.getContext('2d');
+
+    let loaderShown = false;
+
+    for (let i = 0; i < totalFrames; i++) {
+      // Distribute evenly; use tiny offset on frame 0 so currentTime always changes
+      vid.currentTime = i === 0
+        ? Math.min(0.001, duration)
+        : (i / (totalFrames - 1)) * duration;
+
+      await new Promise(function (r) {
+        vid.addEventListener('seeked', r, { once: true });
+      });
+
+      offCtx.drawImage(vid, 0, 0, offCanvas.width, offCanvas.height);
+      try {
+        frames[i] = await createImageBitmap(offCanvas);
+      } catch (_) { /* skip bad frame */ }
+
+      BAR.style.width = (((i + 1) / totalFrames) * 100).toFixed(1) + '%';
+
+      // Show site after first 8% of frames are ready
+      if (!loaderShown && (i + 1) >= Math.ceil(totalFrames * 0.08)) {
+        loaderShown  = true;
+        videoReady   = true;   // enough frames to start animating
+        LOADER.classList.add('fade-out');
+        setTimeout(function () { LOADER.style.display = 'none'; }, 820);
+        drawFrame(0);
+      }
+    }
+
+    videoReady = true;
+    BAR.style.width = '100%';
+    if (!loaderShown) {
+      LOADER.classList.add('fade-out');
+      setTimeout(function () { LOADER.style.display = 'none'; }, 820);
+      drawFrame(0);
+    }
+  }
+
+  /* ── FALLBACK: if video fails, use gradient background ── */
+  function drawFallback (progress) {
+    CTX.clearRect(0, 0, CANVAS.width, CANVAS.height);
+    // deep dark gradient
+    const g = CTX.createLinearGradient(0, 0, CANVAS.width, CANVAS.height);
+    g.addColorStop(0,   '#030303');
+    g.addColorStop(0.4, '#0a0806');
+    g.addColorStop(1,   '#040404');
+    CTX.fillStyle = g;
+    CTX.fillRect(0, 0, CANVAS.width, CANVAS.height);
+
+    // subtle golden vignette hint
+    const radial = CTX.createRadialGradient(
+      CANVAS.width * 0.5, CANVAS.height * 0.5, CANVAS.height * 0.1,
+      CANVAS.width * 0.5, CANVAS.height * 0.5, CANVAS.height * 0.85
+    );
+    radial.addColorStop(0, 'rgba(192,160,96,0.04)');
+    radial.addColorStop(1, 'rgba(0,0,0,0)');
+    CTX.fillStyle = radial;
+    CTX.fillRect(0, 0, CANVAS.width, CANVAS.height);
+  }
+
+  /* ── SCROLL PROGRESS ── */
+  const PROG_FILL = document.getElementById('scroll-progress-fill');
+
+  function getScrollProgress () {
+    const hero   = document.getElementById('hero');
+    const heroH  = hero.offsetHeight;
+    const scrollY = window.scrollY;
+    const maxScroll = heroH - window.innerHeight;
+    return Math.max(0, Math.min(1, scrollY / maxScroll));
+  }
+
+  /* ── TEXT OVERLAY HELPERS ── */
+  function setOpacity (el, v) { el.style.opacity = v; }
+
+  function fadeRange (el, progress, inStart, inEnd, outStart, outEnd) {
+    if (progress < inStart)       { setOpacity(el, 0); return; }
+    if (progress >= inStart && progress < inEnd) {
+      setOpacity(el, (progress - inStart) / (inEnd - inStart)); return;
+    }
+    if (outStart === null) { setOpacity(el, 1); return; }
+    if (progress >= inEnd && progress < outStart) { setOpacity(el, 1); return; }
+    if (progress >= outStart && progress < outEnd) {
+      setOpacity(el, 1 - (progress - outStart) / (outEnd - outStart)); return;
+    }
+    setOpacity(el, 0);
+  }
+
+  /* ── WORD-BY-WORD for T2 ── */
+  const t2Words = document.querySelectorAll('#t2 .word');
+  function updateT2 (p) {
+    if (p < 0.16 || p > 0.28) {
+      t2Words.forEach(w => { w.style.opacity = 0; w.style.transform = 'translateY(10px)'; });
+      document.getElementById('t2').style.opacity = (p >= 0.16 && p <= 0.28) ? 1 : 0;
+      return;
+    }
+    document.getElementById('t2').style.opacity = 1;
+    const range = 0.28 - 0.16;
+    const local = (p - 0.16) / range;
+    const total = t2Words.length;
+    t2Words.forEach(function (w, i) {
+      const threshold = (i / total);
+      const wordP = Math.max(0, Math.min(1, (local - threshold) / (1 / total)));
+      w.style.opacity    = wordP;
+      w.style.transform  = 'translateY(' + (10 * (1 - wordP)) + 'px)';
+    });
+  }
+
+  /* ── T3 slide from right ── */
+  function updateT3 (p) {
+    const el = document.getElementById('t3');
+    if (p < 0.28 || p > 0.44) {
+      el.style.opacity   = 0;
+      el.style.transform = 'translateX(40px)';
+      return;
+    }
+    if (p >= 0.28 && p < 0.34) {
+      const f = (p - 0.28) / 0.06;
+      el.style.opacity   = f;
+      el.style.transform = 'translateX(' + (40 * (1 - f)) + 'px)';
+    } else if (p >= 0.34 && p < 0.40) {
+      el.style.opacity   = 1;
+      el.style.transform = 'translateX(0)';
+    } else {
+      const f = (p - 0.40) / 0.04;
+      el.style.opacity   = 1 - f;
+      el.style.transform = 'translateX(0)';
+    }
+  }
+
+  /* ── T5 open/align/listen ── */
+  function updateT5 (p) {
+    const t5 = document.getElementById('t5');
+    const open   = document.getElementById('wal-open');
+    const align  = document.getElementById('wal-align');
+    const listen = document.getElementById('wal-listen');
+
+    if (p < 0.56 || p > 0.72) {
+      t5.style.opacity   = 0;
+      open.style.opacity = align.style.opacity = listen.style.opacity = 0;
+      return;
+    }
+    t5.style.opacity = 1;
+
+    // all fade out together at 70%
+    const allFade = p >= 0.70 ? 1 - (p - 0.70) / 0.02 : 1;
+    t5.style.opacity = allFade;
+
+    // Open at 58%
+    open.style.opacity   = p >= 0.58 ? Math.min(1, (p - 0.58) / 0.02) : 0;
+    // Align at 61%
+    align.style.opacity  = p >= 0.61 ? Math.min(1, (p - 0.61) / 0.02) : 0;
+    // Listen at 64%
+    listen.style.opacity = p >= 0.64 ? Math.min(1, (p - 0.64) / 0.02) : 0;
+  }
+
+  /* ── T7 char-by-char ── */
+  const T7_MAIN_TEXT = 'AURATEK.';
+  const T7_SUB_TEXT  = 'Engineered for silence.';
+
+  function buildT7 () {
+    const mainEl = document.getElementById('t7-main');
+    const subEl  = document.getElementById('t7-sub');
+    mainEl.innerHTML = T7_MAIN_TEXT.split('').map(
+      c => c === ' ' ? '<span class="char">&nbsp;</span>' : '<span class="char">' + c + '</span>'
+    ).join('');
+    subEl.innerHTML = T7_SUB_TEXT.split('').map(
+      c => c === ' ' ? '<span class="char">&nbsp;</span>' : '<span class="char">' + c + '</span>'
+    ).join('');
+  }
+
+  function updateT7 (p) {
+    const el = document.getElementById('t7');
+    if (p < 0.83 || p > 0.97) {
+      el.style.opacity = 0;
+      document.querySelectorAll('#t7 .char').forEach(c => c.style.opacity = 0);
+      return;
+    }
+    el.style.opacity = 1;
+    const chars = document.querySelectorAll('#t7 .char');
+    const total = chars.length;
+    const range = 0.97 - 0.83;
+    const local = (p - 0.83) / range;
+    chars.forEach(function (c, i) {
+      c.style.opacity = Math.max(0, Math.min(1, (local - (i / total)) / (1 / total)));
+    });
+  }
+
+  /* ── MAIN SCROLL UPDATE ── */
+  function onScroll () {
+    const p = getScrollProgress();
+    lastProgress = p;
+
+    // scroll progress bar (full page, not just hero)
+    const totalScroll = document.body.scrollHeight - window.innerHeight;
+    const globalP = window.scrollY / totalScroll;
+    PROG_FILL.style.height = (globalP * 100).toFixed(2) + '%';
+
+    if (videoReady) {
+      drawFrame(p);
+    } else {
+      drawFallback(p);
+    }
+
+    // T1: AURATEK big — fade in 3%→7%, fade out 13%→17%
+    fadeRange(document.getElementById('t1'), p, 0.03, 0.08, 0.13, 0.17);
+
+    // T2: words — handled separately
+    updateT2(p);
+
+    // T3: forty components — slide from right
+    updateT3(p);
+
+    // T4: watch precision — fade in 43%→47%, fade out 54%→58%
+    fadeRange(document.getElementById('t4'), p, 0.43, 0.47, 0.54, 0.58);
+
+    // T5: open align listen
+    updateT5(p);
+
+    // T6: thirty seconds — fade in 70%→74%, fade out 82%→86%
+    fadeRange(document.getElementById('t6'), p, 0.70, 0.74, 0.82, 0.86);
+
+    // T7: char reveal
+    updateT7(p);
+
+    // T8: CTA — fade in 93%→96%, stays
+    fadeRange(document.getElementById('t8'), p, 0.93, 0.96, null, null);
+  }
+
+  window.addEventListener('scroll', function () {
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(onScroll);
+  }, { passive: true });
+
+  /* ── INIT ── */
+  buildT7();
+  extractFrames();  // async — starts extraction, shows loader until 8% frames ready
+  onScroll();       // initial overlay positions
+
+  // GSAP ScrollTrigger for collection cards entrance
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.from('.card', {
+    scrollTrigger: {
+      trigger: '#collection',
+      start: 'top 80%',
+    },
+    y: 60,
+    opacity: 0,
+    stagger: 0.15,
+    duration: 1,
+    ease: 'power3.out'
+  });
+
+  gsap.from('.collection-header', {
+    scrollTrigger: {
+      trigger: '#collection',
+      start: 'top 85%',
+    },
+    y: 40,
+    opacity: 0,
+    duration: 1.2,
+    ease: 'power3.out'
+  });
+
+  gsap.from('.nl-title, .nl-sub, .nl-form', {
+    scrollTrigger: {
+      trigger: '#newsletter',
+      start: 'top 80%',
+    },
+    y: 30,
+    opacity: 0,
+    stagger: 0.2,
+    duration: 1,
+    ease: 'power3.out'
+  });
+
+})();
+</script>
+</body>
+</html>

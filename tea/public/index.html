@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUXE TEA — Premium Botanical Blends</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #04070A;
+      --bg-card:     #080C10;
+      --bg-elevated: #0C1218;
+      --gold:        #B89A5E;
+      --gold-bright: #CAAC70;
+      --gold-dim:    #6B5835;
+      --pearl:       #F0EDE5;
+      --pearl-dim:   #C5C0B5;
+      --grey:        #7A7870;
+      --font-d: 'Cormorant Garamond', Georgia, serif;
+      --font-b: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: auto; }
+    body {
+      background: var(--bg);
+      color: var(--pearl);
+      font-family: var(--font-b);
+      overflow-x: hidden;
+    }
+
+    /* ──────────────────────── LOADING ──────────────────────── */
+    #loading {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      z-index: 1000;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px;
+      transition: opacity 1.2s ease;
+    }
+    #loading.out { opacity: 0; pointer-events: none; }
+
+    .ls-brand {
+      font-family: var(--font-d);
+      font-size: 48px;
+      color: var(--gold);
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .ls-sub {
+      font-family: var(--font-b);
+      font-size: 10px;
+      color: var(--grey);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-top: -6px;
+    }
+    .ls-bar-wrap {
+      width: 180px; height: 1px;
+      background: rgba(184,154,94,0.15);
+      margin-top: 10px; overflow: hidden;
+    }
+    #ls-bar {
+      height: 100%; width: 0%;
+      background: var(--gold);
+      transition: width 0.12s linear;
+    }
+    .ls-label {
+      font-family: var(--font-b);
+      font-size: 10px;
+      color: #2E2A24;
+      letter-spacing: 0.08em;
+    }
+
+    /* ──────────────────────── HEADER ───────────────────────── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 72px;
+      background: rgba(4,7,10,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(184,154,94,0.12);
+      z-index: 200;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+    }
+    .h-logo {
+      font-family: var(--font-d);
+      font-size: 15px;
+      color: var(--gold);
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .h-nav {
+      display: flex; gap: 32px; list-style: none;
+    }
+    .h-nav a {
+      font-family: var(--font-b);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: rgba(240,237,229,0.5);
+      letter-spacing: 0.2em;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .h-nav a:hover { color: var(--gold); }
+    .h-cta {
+      font-family: var(--font-b);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+      border: 1px solid rgba(184,154,94,0.4);
+      padding: 10px 24px;
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+      text-decoration: none;
+    }
+    .h-cta:hover {
+      background: rgba(184,154,94,0.08);
+      border-color: var(--gold);
+    }
+
+    /* ────────────────── SCROLL PROGRESS (right) ────────────── */
+    #sp {
+      position: fixed; right: 0; top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(184,154,94,0.08);
+      z-index: 100; pointer-events: none;
+    }
+    #sp-fill {
+      width: 100%; height: 0%;
+      background: rgba(184,154,94,0.6);
+    }
+
+    /* ──────────────────────── HERO ─────────────────────────── */
+    #hero { position: relative; height: 800vh; }
+    #hero-sticky {
+      position: sticky; top: 0;
+      height: 100vh; overflow: hidden;
+    }
+    #hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 60% 40%, #0C0C08 0%, #04070A 60%);
+    }
+    #vc {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      opacity: 0; transition: opacity 0.5s;
+    }
+
+    /* ─────────────────── TEXT OVERLAYS ─────────────────────── */
+    .ov {
+      position: absolute;
+      opacity: 0; pointer-events: none;
+      text-shadow: 0 2px 40px rgba(4,7,10,0.96);
+      z-index: 10;
+      will-change: opacity, transform;
+    }
+
+    /* OV1 — LUXE TEA hero title */
+    #ov1 {
+      top: 12%; left: 50%;
+      transform: translateX(-50%);
+      text-align: center; white-space: nowrap;
+    }
+    #ov1 .v1-main {
+      font-family: var(--font-d);
+      font-size: 104px;
+      letter-spacing: 0.5em;
+      color: rgba(184,154,94,0.88);
+      text-transform: uppercase;
+      display: block; line-height: 1;
+    }
+    #ov1 .v1-sub {
+      font-family: var(--font-b);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.4em;
+      color: rgba(240,237,229,0.32);
+      display: block; margin-top: 18px;
+    }
+
+    /* OV2 — Sourced. Crafted. Steeped. */
+    #ov2 { left: 8%; bottom: 15%; }
+    #ov2 .v2-line {
+      font-family: var(--font-d);
+      font-style: italic; font-size: 48px;
+      color: rgba(240,237,229,0.88);
+      display: block; line-height: 1.15;
+    }
+
+    /* OV3 — Every leaf */
+    #ov3 { right: 8%; top: 18%; text-align: right; }
+    #ov3 .v3-line {
+      font-family: var(--font-d);
+      font-size: 36px;
+      color: rgba(184,154,94,0.78);
+      display: block; line-height: 1.25;
+    }
+
+    /* OV4 — The ritual begins */
+    #ov4 {
+      left: 8%; bottom: 8%;
+      font-family: var(--font-b);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      color: rgba(240,237,229,0.38);
+    }
+
+    /* OV5 — Steep. Breathe. Transform. */
+    #ov5 { left: 8%; top: 50%; transform: translateY(-50%); }
+    #ov5 .v5-word {
+      font-family: var(--font-d);
+      font-style: italic; font-size: 60px;
+      color: rgba(240,237,229,0.9);
+      display: block; line-height: 1.1;
+    }
+
+    /* OV6 — What nature perfected */
+    #ov6 {
+      top: 10%; left: 50%;
+      transform: translateX(-50%);
+      text-align: center; white-space: nowrap;
+    }
+    #ov6 .v6-line {
+      font-family: var(--font-d);
+      font-style: italic; font-size: 42px;
+      color: rgba(184,154,94,0.9);
+      display: block; line-height: 1.3;
+    }
+
+    /* OV7 — LUXE TEA. finale */
+    #ov7 { right: 8%; bottom: 12%; text-align: right; }
+    #ov7-brand {
+      font-family: var(--font-d);
+      font-size: 66px;
+      color: var(--pearl);
+      display: block; line-height: 1;
+    }
+    #ov7-brand .ch { display: inline-block; }
+    #ov7-sub {
+      font-family: var(--font-b);
+      font-size: 13px;
+      color: rgba(184,154,94,0.8);
+      display: block; margin-top: 10px;
+    }
+
+    /* OV8 — CTA button */
+    #ov8 {
+      left: 50%; top: 50%;
+      transform: translateX(-50%) translateY(-50%);
+    }
+    #ov8-btn {
+      background: transparent;
+      border: 1px solid rgba(184,154,94,0.5);
+      font-family: var(--font-b);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      padding: 16px 52px;
+      border-radius: 0;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      white-space: nowrap;
+      pointer-events: auto;
+    }
+    #ov8-btn:hover {
+      background: rgba(184,154,94,0.08);
+      border-color: rgba(184,154,94,0.8);
+    }
+
+    /* ─────────────────── COLLECTION SECTION ────────────────── */
+    #collection {
+      background: var(--bg);
+      padding: 120px 0;
+    }
+    .sec-eye {
+      font-family: var(--font-b);
+      font-size: 9px;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .sec-title {
+      font-family: var(--font-d);
+      font-style: italic;
+      font-size: 58px;
+      color: var(--pearl);
+      text-align: center;
+      margin-bottom: 60px;
+      line-height: 1;
+    }
+
+    /* Carousel */
+    .cw {
+      display: flex;
+      overflow-x: auto; overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 28px;
+      padding: 20px 40px;
+    }
+    .cw::-webkit-scrollbar { display: none; }
+    .cw > .card:first-child { margin-left: auto; }
+    .cw > .card:last-child  { margin-right: auto; }
+
+    .card {
+      flex: 0 0 360px; height: 600px;
+      scroll-snap-align: center;
+      position: relative;
+      padding: 0;
+      display: flex; flex-direction: column;
+      cursor: pointer; overflow: hidden;
+      transition:
+        transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 24px 64px rgba(184,154,94,0.1), 0 0 0 1px rgba(184,154,94,0.3);
+    }
+
+    /* BLOOM — forest green */
+    .card-bloom {
+      background: linear-gradient(160deg, #050C07 0%, #0D1810 100%);
+      border-top: 1px solid var(--gold);
+      border-left: 1px solid rgba(184,154,94,0.15);
+      border-right: 1px solid rgba(184,154,94,0.15);
+      border-bottom: 1px solid rgba(184,154,94,0.15);
+    }
+    /* GREEN — copper */
+    .card-green {
+      background: linear-gradient(160deg, #0C0804 0%, #1C1006 100%);
+      box-shadow: 0 0 0 1px rgba(184,154,94,0.22);
+    }
+    /* REJUVE — midnight navy */
+    .card-rejuve {
+      background: linear-gradient(160deg, #04060C 0%, #060A18 100%);
+      border: 1px solid rgba(184,154,94,0.12);
+    }
+
+    .card-img-wrap {
+      width: 100%; height: 220px;
+      overflow: hidden; flex-shrink: 0;
+      position: relative;
+    }
+    .card-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card:hover .card-img-wrap img {
+      transform: scale(1.04);
+    }
+
+    .card-body {
+      padding: 32px 30px 28px;
+      display: flex; flex-direction: column;
+      flex: 1;
+    }
+    .card-badge {
+      position: absolute;
+      top: 20px; right: 20px;
+      font-family: var(--font-b);
+      font-size: 8px;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      background: rgba(184,154,94,0.12);
+      padding: 4px 10px;
+      z-index: 2;
+    }
+    .card-name {
+      font-family: var(--font-d);
+      font-size: 54px;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .card-name-pearl { color: var(--pearl); }
+    .card-blend {
+      font-family: var(--font-b);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--grey);
+      letter-spacing: 0.2em;
+      margin-bottom: 18px;
+    }
+    .card-desc {
+      font-family: var(--font-b);
+      font-size: 13px;
+      color: rgba(240,237,229,0.5);
+      line-height: 1.7;
+      flex: 1;
+    }
+    .card-price {
+      font-family: var(--font-d);
+      font-size: 28px;
+      color: var(--pearl);
+      margin-top: 18px;
+      margin-bottom: 16px;
+    }
+    .card-cta {
+      background: transparent;
+      border: 1px solid rgba(184,154,94,0.4);
+      font-family: var(--font-b);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+      padding: 11px 26px;
+      cursor: pointer;
+      transition: background 0.3s;
+      align-self: flex-start;
+      margin-bottom: 14px;
+    }
+    .card-cta:hover { background: rgba(184,154,94,0.08); }
+    .card-note {
+      font-family: var(--font-b);
+      font-size: 9px;
+      color: rgba(240,237,229,0.22);
+      letter-spacing: 0.04em;
+    }
+
+    /* ─────────────────────── RITUAL SECTION ────────────────── */
+    #ritual {
+      background: var(--bg);
+      background-image: linear-gradient(to bottom,
+        rgba(4,7,10,0.96) 0%,
+        rgba(4,7,10,0.65) 40%,
+        rgba(4,7,10,0.70) 60%,
+        rgba(4,7,10,0.97) 100%);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      padding: 140px 0;
+      text-align: center;
+    }
+    .rs-eye {
+      font-family: var(--font-b);
+      font-size: 9px;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.4em;
+      margin-bottom: 20px;
+    }
+    .rs-title {
+      font-family: var(--font-d);
+      font-style: italic;
+      font-size: 50px;
+      color: var(--pearl);
+      margin-bottom: 12px;
+    }
+    .rs-sub {
+      font-family: var(--font-b);
+      font-size: 13px;
+      color: rgba(240,237,229,0.38);
+      margin-bottom: 48px;
+    }
+    .rs-form {
+      display: flex; flex-direction: column;
+      align-items: center;
+    }
+    .rs-input {
+      width: 300px; max-width: 90vw;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(184,154,94,0.4);
+      font-family: var(--font-b);
+      font-size: 13px;
+      color: var(--pearl);
+      padding: 12px 0;
+      outline: none;
+      transition: border-bottom-color 0.3s;
+    }
+    .rs-input::placeholder { color: rgba(240,237,229,0.22); }
+    .rs-input:focus { border-bottom-color: var(--gold); }
+    .rs-submit {
+      background: transparent; border: none;
+      font-family: var(--font-b);
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      margin-top: 24px; padding: 8px 0;
+      transition: letter-spacing 0.3s ease;
+    }
+    .rs-submit:hover { letter-spacing: 0.3em; }
+
+    /* ──────────────────────── FOOTER ───────────────────────── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid rgba(184,154,94,0.1);
+      padding: 48px 0;
+    }
+    .ft {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: center;
+    }
+    .ft-brand {
+      font-family: var(--font-d);
+      font-size: 20px;
+      color: var(--gold);
+    }
+    .ft-copy {
+      font-family: var(--font-b);
+      font-size: 10px;
+      color: #2E2A24;
+      margin-top: 6px;
+    }
+    .ft-links {
+      font-family: var(--font-b);
+      font-size: 10px;
+      color: #2E2A24;
+      letter-spacing: 0.15em;
+      text-align: center;
+    }
+    .ft-social {
+      font-family: var(--font-b);
+      font-size: 10px;
+      color: var(--grey);
+      text-align: right;
+    }
+    .ft-social a {
+      color: var(--grey); text-decoration: none;
+      transition: color 0.3s;
+    }
+    .ft-social a:hover { color: var(--gold); }
+
+    /* ───────────────────── RESPONSIVE ──────────────────────── */
+    @media (max-width: 768px) {
+      /* Header */
+      .h-nav { display: none; }
+      header { padding: 0 20px; height: 60px; }
+      .h-cta { padding: 8px 16px; font-size: 10px; letter-spacing: 0.1em; }
+
+      /* Hero overlays */
+      #ov1 { white-space: normal; width: 90%; left: 5%; transform: none; }
+      #ov1 .v1-main { font-size: clamp(36px, 10vw, 66px); letter-spacing: 0.2em; white-space: normal; }
+      #ov2 { left: 5%; }
+      #ov2 .v2-line { font-size: 32px; }
+      #ov3 { right: 5%; }
+      #ov3 .v3-line { font-size: 22px; }
+      #ov4 { left: 5%; right: 5%; font-size: 9px; }
+      #ov5 { left: 5%; }
+      #ov5 .v5-word { font-size: 40px; }
+      #ov6 { white-space: normal; width: 82%; left: 9%; transform: none; }
+      #ov6 .v6-line { font-size: 26px; white-space: normal; }
+      #ov7 { right: 5%; }
+      #ov7-brand { font-size: 44px; }
+      #ov8-btn { padding: 14px 36px; font-size: 11px; }
+
+      /* Collection section */
+      #collection { padding: 80px 0; }
+      .sec-title { font-size: 36px; }
+      .cw { padding: 20px; gap: 20px; }
+      .cw > .card:first-child { margin-left: 0; }
+      .cw > .card:last-child  { margin-right: 0; }
+      .card { flex: 0 0 280px; height: auto; }
+      .card-img-wrap { height: 180px; }
+      .card-name { font-size: 44px; }
+
+      /* Ritual section */
+      #ritual { padding: 100px 20px; }
+      .rs-title { font-size: 34px; }
+
+      /* Footer */
+      .ft { grid-template-columns: 1fr; gap: 16px; text-align: center; padding: 0 20px; }
+      .ft-social { text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      #ov1 .v1-main { font-size: clamp(26px, 9vw, 40px); }
+      #ov2 .v2-line { font-size: 26px; }
+      #ov5 .v5-word { font-size: 32px; }
+      #ov7-brand { font-size: 36px; }
+      .card { flex: 0 0 260px; }
+      .card-name { font-size: 38px; }
+      .sec-title { font-size: 30px; }
+      .rs-title { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOADING -->
+  <div id="loading">
+    <span class="ls-brand">LUXE TEA</span>
+    <span class="ls-sub">Premium Botanical Blends</span>
+    <div class="ls-bar-wrap"><div id="ls-bar"></div></div>
+    <span class="ls-label">Preparing your experience...</span>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <a href="#" class="h-logo">Luxe Tea</a>
+    <nav><ul class="h-nav">
+      <li><a href="#collection">Collection</a></li>
+      <li><a href="#ritual">Our Story</a></li>
+      <li><a href="#ritual">Contact</a></li>
+    </ul></nav>
+    <a href="#collection" class="h-cta">Shop Now</a>
+  </header>
+
+  <!-- SCROLL PROGRESS -->
+  <div id="sp"><div id="sp-fill"></div></div>
+
+  <main>
+    <!-- ══════════════ HERO (800vh) ══════════════ -->
+    <section id="hero">
+      <div id="hero-sticky">
+        <div id="hero-bg"></div>
+        <canvas id="vc"></canvas>
+
+        <!-- OV1 -->
+        <div class="ov" id="ov1">
+          <span class="v1-main">LUXE TEA</span>
+          <span class="v1-sub">Premium Botanical Blends</span>
+        </div>
+
+        <!-- OV2: Sourced. Crafted. Steeped. -->
+        <div class="ov" id="ov2">
+          <span class="v2-line" id="ov2-0">Sourced.</span>
+          <span class="v2-line" id="ov2-1">Crafted.</span>
+          <span class="v2-line" id="ov2-2">Steeped.</span>
+        </div>
+
+        <!-- OV3: Every leaf chosen -->
+        <div class="ov" id="ov3">
+          <span class="v3-line" id="ov3-0">Every leaf chosen</span>
+          <span class="v3-line" id="ov3-1">with intention.</span>
+          <span class="v3-line" id="ov3-2">Every blend, a memory.</span>
+        </div>
+
+        <!-- OV4: The ritual begins -->
+        <div class="ov" id="ov4">The ritual begins with the first sip.</div>
+
+        <!-- OV5: Steep. Breathe. Transform. -->
+        <div class="ov" id="ov5">
+          <span class="v5-word" id="ov5-0">Steep.</span>
+          <span class="v5-word" id="ov5-1">Breathe.</span>
+          <span class="v5-word" id="ov5-2">Transform.</span>
+        </div>
+
+        <!-- OV6: What nature perfected -->
+        <div class="ov" id="ov6">
+          <span class="v6-line">What nature has perfected</span>
+          <span class="v6-line">over centuries.</span>
+        </div>
+
+        <!-- OV7: LUXE TEA. finale -->
+        <div class="ov" id="ov7">
+          <span id="ov7-brand"></span>
+          <span id="ov7-sub">Where taste meets ritual.</span>
+        </div>
+
+        <!-- OV8: CTA -->
+        <div class="ov" id="ov8">
+          <button id="ov8-btn" onclick="document.getElementById('collection').scrollIntoView({behavior:'smooth'})">
+            Explore the Collection →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ COLLECTION ══════════════ -->
+    <section id="collection">
+      <p class="sec-eye">Our Collection</p>
+      <h2 class="sec-title">Choose your ritual.</h2>
+
+      <div class="cw">
+
+        <!-- BLOOM -->
+        <div class="card card-bloom">
+          <div class="card-img-wrap">
+            <img src="Bloom.png" alt="BLOOM tea tin" loading="lazy">
+          </div>
+          <div class="card-body">
+            <p class="card-name">BLOOM</p>
+            <p class="card-blend">Floral &amp; Mint Blend</p>
+            <p class="card-desc">Hibiscus petals. Peppermint leaves. Rose essence. A cup that opens with you.</p>
+            <p class="card-price">₹ 1,200</p>
+            <button class="card-cta">Add to Ritual</button>
+            <p class="card-note">25 SACHETS · CAFFEINE FREE · HAND BLENDED</p>
+          </div>
+        </div>
+
+        <!-- GREEN -->
+        <div class="card card-green">
+          <span class="card-badge">Bestseller</span>
+          <div class="card-img-wrap">
+            <img src="green.png" alt="GREEN tea tin" loading="lazy">
+          </div>
+          <div class="card-body">
+            <p class="card-name">GREEN</p>
+            <p class="card-blend">Chamomile &amp; Green Blend</p>
+            <p class="card-desc">Ancient green leaves. Chamomile blooms. Golden chrysanthemum. Rooted in earth.</p>
+            <p class="card-price">₹ 980</p>
+            <button class="card-cta">Add to Ritual</button>
+            <p class="card-note">25 SACHETS · LOW CAFFEINE · HAND BLENDED</p>
+          </div>
+        </div>
+
+        <!-- REJUVE -->
+        <div class="card card-rejuve">
+          <div class="card-img-wrap">
+            <img src="rejuve.png" alt="REJUVE tea tin" loading="lazy">
+          </div>
+          <div class="card-body">
+            <p class="card-name card-name-pearl">REJUVE</p>
+            <p class="card-blend">Lavender &amp; Calm Blend</p>
+            <p class="card-desc">Blue lavender. Silver needle. Night jasmine. Crafted for stillness.</p>
+            <p class="card-price">₹ 1,450</p>
+            <button class="card-cta">Add to Ritual</button>
+            <p class="card-note">25 SACHETS · CAFFEINE FREE · HAND BLENDED</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══════════════ RITUAL / NEWSLETTER ══════════════ -->
+    <section id="ritual">
+      <p class="rs-eye">Begin Your Journey</p>
+      <h2 class="rs-title">Begin your ritual.</h2>
+      <p class="rs-sub">Curated teas. Delivered to your door. No compromise.</p>
+      <form class="rs-form" onsubmit="return false;">
+        <input type="email" class="rs-input" placeholder="Your email address">
+        <button type="submit" class="rs-submit">Join the Ritual →</button>
+      </form>
+    </section>
+
+    <!-- ══════════════ FOOTER ══════════════ -->
+    <footer>
+      <div class="ft">
+        <div>
+          <p class="ft-brand">Luxe Tea</p>
+          <p class="ft-copy">© 2026 Luxe Tea Co. Where taste meets ritual.</p>
+        </div>
+        <p class="ft-links">BLOOM · GREEN · REJUVE</p>
+        <div class="ft-social">
+          <a href="#">Instagram</a> · <a href="#">WhatsApp</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+    /* ================================================
+       LUXE TEA — Scroll-Driven Narrative
+    ================================================ */
+
+    const loading = document.getElementById('loading');
+    const lsBar   = document.getElementById('ls-bar');
+    const canvas  = document.getElementById('vc');
+    const ctx     = canvas.getContext('2d');
+    const heroBg  = document.getElementById('hero-bg');
+    const spFill  = document.getElementById('sp-fill');
+
+    let frames     = [];
+    let hasVideo   = false;
+    let rafPending = false;
+    let finaleChars = null;
+
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); scheduleFrame(); }, { passive: true });
+
+    function sc(min, max, v) {
+      if (max <= min) return v >= max ? 1 : 0;
+      const x = Math.max(0, Math.min(1, (v - min) / (max - min)));
+      return x * x * (3 - 2 * x);
+    }
+
+    function drawCover(bmp) {
+      const cw = canvas.width, ch = canvas.height;
+      const scale = Math.max(cw / bmp.width, ch / bmp.height);
+      const sw = bmp.width * scale, sh = bmp.height * scale;
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.drawImage(bmp, (cw - sw) / 2, (ch - sh) / 2, sw, sh);
+    }
+
+    async function loadVideo() {
+      return new Promise(resolve => {
+        const video = document.createElement('video');
+        video.src        = 'brand-story-final.mp4';
+        video.muted      = true;
+        video.playsInline = true;
+        video.preload    = 'auto';
+        // No crossOrigin — keeps the canvas untainted so toDataURL/createImageBitmap work
+
+        let done = false;
+        function finish(ok) {
+          if (done) return; done = true;
+          completeLoading(ok); resolve();
+        }
+
+        // Only bail if the video file itself errors (404, codec fail, etc.)
+        video.addEventListener('error', () => finish(false));
+
+        // Safety net: if metadata never arrives after 10s the file is inaccessible
+        let metaTimer = setTimeout(() => finish(false), 10000);
+
+        video.addEventListener('loadedmetadata', async () => {
+          clearTimeout(metaTimer); // metadata arrived — let extraction run to completion
+          const dur = video.duration;
+          if (!dur || !isFinite(dur)) { finish(false); return; }
+
+          const count    = Math.min(150, Math.max(30, Math.floor(dur * 24)));
+          const interval = dur / count;
+          const tw = Math.min(window.innerWidth, 1920);
+          const th = Math.min(window.innerHeight, 1080);
+          const tmp = document.createElement('canvas');
+          tmp.width = tw; tmp.height = th;
+          const tc = tmp.getContext('2d');
+
+          for (let i = 0; i <= count; i++) {
+            video.currentTime = i * interval;
+            await new Promise(r => video.addEventListener('seeked', r, { once: true }));
+            tc.drawImage(video, 0, 0, tw, th);
+            try { frames.push(await createImageBitmap(tmp)); } catch(_) {}
+            lsBar.style.width = Math.round((i / count) * 100) + '%';
+          }
+          hasVideo = frames.length > 0;
+          finish(hasVideo);
+        });
+        video.load();
+      });
+    }
+
+    function completeLoading(ok) {
+      lsBar.style.width = '100%';
+      setTimeout(() => {
+        loading.classList.add('out');
+        if (ok) { canvas.style.opacity = '1'; heroBg.style.opacity = '0'; }
+        setTimeout(() => { loading.style.display = 'none'; initSite(); }, 1200);
+      }, 300);
+    }
+
+    function buildFinaleChars() {
+      const el = document.getElementById('ov7-brand');
+      'LUXE TEA.'.split('').forEach(c => {
+        const s = document.createElement('span');
+        s.className = 'ch';
+        s.textContent = c === ' ' ? ' ' : c;
+        s.style.opacity = '0';
+        el.appendChild(s);
+      });
+      finaleChars = el.querySelectorAll('.ch');
+      document.getElementById('ov7-sub').style.opacity = '0';
+    }
+
+    function setOp(el, v) {
+      el.style.opacity = v <= 0 ? '0' : v >= 1 ? '1' : String(v);
+    }
+
+    function updateOverlays(p, pastHero) {
+      if (pastHero) {
+        ['ov1','ov2','ov3','ov4','ov5','ov6','ov7','ov8']
+          .forEach(id => { document.getElementById(id).style.opacity = '0'; });
+        return;
+      }
+
+      // OV1: LUXE TEA title — in 3→5%, out 13→15%
+      setOp(document.getElementById('ov1'),
+        sc(0.03,0.05,p) * (1 - sc(0.13,0.15,p)));
+
+      // OV2: Sourced/Crafted/Steeped — staggered in 16→22%, out 26→28%
+      const ov2out = 1 - sc(0.26,0.28,p);
+      ['ov2-0','ov2-1','ov2-2'].forEach((id,i) => {
+        const s = 0.16 + i * 0.02;
+        setOp(document.getElementById(id), sc(s, s+0.025, p) * ov2out);
+      });
+
+      // OV3: Every leaf — slide in 28→32%, out 40→42%
+      const ov3out = 1 - sc(0.40,0.42,p);
+      ['ov3-0','ov3-1','ov3-2'].forEach((id,i) => {
+        const s  = 0.28 + i * 0.012;
+        const ip = sc(s, s+0.025, p);
+        const el = document.getElementById(id);
+        el.style.opacity   = String(ip * ov3out);
+        el.style.transform = `translateX(${(1-ip)*30}px)`;
+      });
+
+      // OV4: The ritual begins — in 43→45%, out 49→51%
+      setOp(document.getElementById('ov4'),
+        sc(0.43,0.45,p) * (1 - sc(0.49,0.51,p)));
+
+      // OV5: Steep/Breathe/Transform — staggered in, out 68→70%
+      const ov5out = 1 - sc(0.68,0.70,p);
+      [{id:'ov5-0',s:0.55,e:0.57},{id:'ov5-1',s:0.58,e:0.60},{id:'ov5-2',s:0.61,e:0.63}]
+        .forEach(({id,s,e}) => {
+          setOp(document.getElementById(id), sc(s,e,p) * ov5out);
+        });
+
+      // OV6: What nature perfected — in 70→73%, out 82→84%
+      setOp(document.getElementById('ov6'),
+        sc(0.70,0.73,p) * (1 - sc(0.82,0.84,p)));
+
+      // OV7: LUXE TEA. char reveal 83→93%
+      const ov7vis = sc(0.83,0.84,p);
+      document.getElementById('ov7').style.opacity = String(ov7vis);
+      if (finaleChars) {
+        const total = finaleChars.length;
+        finaleChars.forEach((el,i) => {
+          const s = 0.83 + (i/total)*0.10;
+          el.style.opacity = String(sc(s, s+0.016, p));
+        });
+        setOp(document.getElementById('ov7-sub'), sc(0.91,0.95,p));
+      }
+
+      // OV8: CTA — in 93→96%
+      const ov8op = sc(0.93,0.96,p);
+      const ov8   = document.getElementById('ov8');
+      ov8.style.opacity      = String(ov8op);
+      ov8.style.pointerEvents = ov8op > 0.5 ? 'auto' : 'none';
+    }
+
+    function updateScene() {
+      const scrollY  = window.scrollY;
+      const hero     = document.getElementById('hero');
+      const heroMax  = hero.offsetHeight - window.innerHeight;
+      const hp       = Math.max(0, Math.min(1, scrollY / heroMax));
+      const tp       = Math.max(0, Math.min(1, scrollY / (document.body.scrollHeight - window.innerHeight)));
+
+      spFill.style.height = (tp * 100) + '%';
+
+      if (hasVideo && frames.length) {
+        const fi = Math.min(frames.length-1, Math.floor(hp * (frames.length-1)));
+        drawCover(frames[fi]);
+      }
+      updateOverlays(hp, scrollY > heroMax + 10);
+    }
+
+    function scheduleFrame() {
+      if (!rafPending) {
+        rafPending = true;
+        requestAnimationFrame(() => { rafPending = false; updateScene(); });
+      }
+    }
+
+    window.addEventListener('scroll', scheduleFrame, { passive: true });
+
+    function initSite() {
+      buildFinaleChars();
+      scheduleFrame();
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      gsap.from(['.sec-eye', '.sec-title'], {
+        y: 36, opacity: 0, stagger: 0.18, duration: 1.4, ease: 'power3.out',
+        scrollTrigger: { trigger: '#collection', start: 'top 78%' },
+      });
+      gsap.from('.card', {
+        y: 50, opacity: 0, stagger: 0.2, duration: 1.2, ease: 'power3.out',
+        scrollTrigger: { trigger: '.cw', start: 'top 82%' },
+      });
+      gsap.from(['.rs-eye', '.rs-title', '.rs-sub', '.rs-form'], {
+        y: 28, opacity: 0, stagger: 0.15, duration: 1.3, ease: 'power3.out',
+        scrollTrigger: { trigger: '#ritual', start: 'top 75%' },
+      });
+    }
+
+    loadVideo();
+  </script>
+</body>
+</html>

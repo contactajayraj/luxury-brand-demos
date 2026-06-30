@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUMIS — Aesthetic Clinic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #06080F;
+      --bg-card:      #0A0E1A;
+      --bg-elevated:  #10162A;
+      --rose-gold:    #C4956A;
+      --rose-bright:  #D4A87A;
+      --rose-dim:     #7A5C42;
+      --pearl:        #F5F0EB;
+      --pearl-dim:    #C8C0B8;
+      --grey:         #7A7870;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--bg);
+      color: var(--pearl);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
+
+    /* ───────────────────────────── LOADING ───────────────────────────── */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      transition: opacity 1.2s ease;
+    }
+    #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+
+    .ls-brand {
+      font-family: var(--font-display);
+      font-size: 52px;
+      color: var(--rose-gold);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .ls-sub {
+      font-family: var(--font-body);
+      font-size: 11px;
+      color: var(--grey);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-top: -6px;
+    }
+    .ls-bar-wrap {
+      width: 180px;
+      height: 1px;
+      background: rgba(196,149,106,0.15);
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    #ls-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--rose-gold);
+      transition: width 0.12s linear;
+    }
+    .ls-label {
+      font-family: var(--font-body);
+      font-size: 10px;
+      color: #3A3830;
+      letter-spacing: 0.08em;
+    }
+
+    /* ───────────────────────────── HEADER ───────────────────────────── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 72px;
+      background: rgba(6,8,15,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(196,149,106,0.12);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+    }
+    .h-logo {
+      font-family: var(--font-display);
+      font-size: 16px;
+      color: var(--rose-gold);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .h-nav {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+    .h-nav a {
+      font-family: var(--font-body);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: rgba(245,240,235,0.5);
+      letter-spacing: 0.2em;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .h-nav a:hover { color: var(--rose-gold); }
+    .h-cta {
+      font-family: var(--font-body);
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--rose-gold);
+      letter-spacing: 0.15em;
+      border: 1px solid rgba(196,149,106,0.4);
+      padding: 10px 24px;
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+      text-decoration: none;
+    }
+    .h-cta:hover {
+      background: rgba(196,149,106,0.08);
+      border-color: var(--rose-gold);
+    }
+
+    /* ───────────────────── SCROLL PROGRESS BAR ──────────────────────── */
+    #scroll-progress {
+      position: fixed;
+      right: 0; top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(196,149,106,0.08);
+      z-index: 100;
+      pointer-events: none;
+    }
+    #scroll-fill {
+      width: 100%;
+      height: 0%;
+      background: rgba(196,149,106,0.6);
+    }
+
+    /* ───────────────────────────── HERO ─────────────────────────────── */
+    #hero {
+      position: relative;
+      height: 800vh;
+    }
+    #hero-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #06080F 0%, #0D0B14 40%, #06080F 70%, #080B14 100%);
+      transition: opacity 0.3s;
+    }
+    #video-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    /* ───────────────────────── TEXT OVERLAYS ────────────────────────── */
+    .ov {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      text-shadow: 0 2px 40px rgba(6,8,15,0.95);
+      z-index: 10;
+      will-change: opacity, transform;
+    }
+
+    /* OV1 — LUMIS hero */
+    #ov1 {
+      top: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      white-space: nowrap;
+    }
+    #ov1 .ov1-main {
+      font-family: var(--font-display);
+      font-size: 110px;
+      letter-spacing: 0.5em;
+      color: rgba(196,149,106,0.85);
+      text-transform: uppercase;
+      display: block;
+      line-height: 1;
+    }
+    #ov1 .ov1-sub {
+      font-family: var(--font-body);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.4em;
+      color: rgba(245,240,235,0.35);
+      display: block;
+      margin-top: 18px;
+    }
+
+    /* OV2 — Precision. Science. Artistry. */
+    #ov2 {
+      left: 8%;
+      bottom: 15%;
+    }
+    #ov2 .ov2-line {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 48px;
+      color: rgba(245,240,235,0.88);
+      display: block;
+      line-height: 1.15;
+    }
+
+    /* OV3 — Every formulation */
+    #ov3 {
+      right: 8%;
+      top: 18%;
+      text-align: right;
+    }
+    #ov3 .ov3-line {
+      font-family: var(--font-display);
+      font-size: 36px;
+      color: rgba(196,149,106,0.75);
+      display: block;
+      line-height: 1.25;
+    }
+
+    /* OV4 — Watch science become beauty */
+    #ov4 {
+      left: 8%;
+      bottom: 8%;
+      font-family: var(--font-body);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      color: rgba(245,240,235,0.4);
+    }
+
+    /* OV5 — Cleanse. Restore. Reveal. */
+    #ov5 {
+      left: 8%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    #ov5 .ov5-word {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 60px;
+      color: rgba(245,240,235,0.9);
+      display: block;
+      line-height: 1.1;
+    }
+
+    /* OV6 — What your skin */
+    #ov6 {
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      white-space: nowrap;
+    }
+    #ov6 .ov6-line {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 42px;
+      color: rgba(196,149,106,0.9);
+      display: block;
+      line-height: 1.3;
+    }
+
+    /* OV7 — LUMIS. finale */
+    #ov7 {
+      right: 8%;
+      bottom: 12%;
+      text-align: right;
+    }
+    #ov7-brand {
+      font-family: var(--font-display);
+      font-size: 70px;
+      color: var(--pearl);
+      display: block;
+      line-height: 1;
+    }
+    #ov7-brand .ch {
+      display: inline-block;
+    }
+    #ov7-sub {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: rgba(196,149,106,0.8);
+      display: block;
+      margin-top: 10px;
+    }
+
+    /* OV8 — CTA button */
+    #ov8 {
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%);
+    }
+    #ov8-btn {
+      background: transparent;
+      border: 1px solid rgba(196,149,106,0.5);
+      font-family: var(--font-body);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--rose-gold);
+      padding: 16px 52px;
+      border-radius: 0;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      white-space: nowrap;
+      pointer-events: auto;
+    }
+    #ov8-btn:hover {
+      background: rgba(196,149,106,0.08);
+      border-color: rgba(196,149,106,0.8);
+    }
+
+    /* ─────────────────────── TREATMENT CAROUSEL ─────────────────────── */
+    #treatments {
+      background: var(--bg);
+      padding: 120px 0;
+    }
+    .sec-eyebrow {
+      font-family: var(--font-body);
+      font-size: 9px;
+      color: var(--rose-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.35em;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .sec-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 58px;
+      color: var(--pearl);
+      text-align: center;
+      margin-bottom: 60px;
+      line-height: 1;
+    }
+    .carousel-wrap {
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      gap: 28px;
+      padding: 20px 40px;
+    }
+    .carousel-wrap::-webkit-scrollbar { display: none; }
+    .carousel-wrap > .card:first-child { margin-left: auto; }
+    .carousel-wrap > .card:last-child  { margin-right: auto; }
+
+    .card {
+      flex: 0 0 360px;
+      height: 580px;
+      scroll-snap-align: center;
+      position: relative;
+      padding: 48px 36px 40px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition:
+        transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 60px rgba(196,149,106,0.08), 0 0 0 1px rgba(196,149,106,0.3);
+    }
+    .card-radiance {
+      background: linear-gradient(160deg, #0A0810 0%, #140E18 100%);
+      border-top: 1px solid var(--rose-gold);
+      border-left: 1px solid rgba(196,149,106,0.15);
+      border-right: 1px solid rgba(196,149,106,0.15);
+      border-bottom: 1px solid rgba(196,149,106,0.15);
+    }
+    .card-restore {
+      background: linear-gradient(160deg, #08100A 0%, #0E1814 100%);
+      box-shadow: 0 0 0 1px rgba(196,149,106,0.25);
+    }
+    .card-sculpt {
+      background: linear-gradient(160deg, #080810 0%, #0E0E1A 100%);
+      border: 1px solid rgba(196,149,106,0.12);
+    }
+    .card-badge {
+      position: absolute;
+      top: 24px; right: 24px;
+      font-family: var(--font-body);
+      font-size: 8px;
+      color: var(--rose-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      background: rgba(196,149,106,0.1);
+      padding: 4px 10px;
+    }
+    .card-name {
+      font-family: var(--font-display);
+      font-size: 66px;
+      color: var(--rose-gold);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .card-name-pearl { color: var(--pearl); }
+    .card-protocol {
+      font-family: var(--font-body);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--grey);
+      letter-spacing: 0.2em;
+      margin-bottom: 28px;
+    }
+    .card-desc {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: rgba(245,240,235,0.55);
+      line-height: 1.7;
+      flex: 1;
+    }
+    .card-price {
+      font-family: var(--font-display);
+      font-size: 30px;
+      color: var(--pearl);
+      margin-top: 24px;
+      margin-bottom: 20px;
+    }
+    .card-cta {
+      background: transparent;
+      border: 1px solid rgba(196,149,106,0.4);
+      font-family: var(--font-body);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--rose-gold);
+      letter-spacing: 0.15em;
+      padding: 12px 28px;
+      cursor: pointer;
+      transition: background 0.3s;
+      align-self: flex-start;
+      margin-bottom: 16px;
+    }
+    .card-cta:hover { background: rgba(196,149,106,0.08); }
+    .card-note {
+      font-family: var(--font-body);
+      font-size: 9px;
+      color: rgba(245,240,235,0.25);
+      letter-spacing: 0.04em;
+    }
+
+    /* ─────────────────────── CONSULTATION SECTION ──────────────────── */
+    #consultation {
+      background-color: var(--bg);
+      background-image: linear-gradient(to bottom,
+        rgba(6,8,15,0.92) 0%,
+        rgba(6,8,15,0.65) 40%,
+        rgba(6,8,15,0.70) 60%,
+        rgba(6,8,15,0.96) 100%);
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      padding: 140px 0;
+      text-align: center;
+    }
+    .cs-eyebrow {
+      font-family: var(--font-body);
+      font-size: 9px;
+      color: var(--rose-gold);
+      text-transform: uppercase;
+      letter-spacing: 0.4em;
+      margin-bottom: 20px;
+    }
+    .cs-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 50px;
+      color: var(--pearl);
+      margin-bottom: 12px;
+    }
+    .cs-sub {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: rgba(245,240,235,0.4);
+      margin-bottom: 48px;
+    }
+    .cs-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cs-input {
+      width: 300px;
+      max-width: 90vw;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(196,149,106,0.4);
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--pearl);
+      padding: 12px 0;
+      outline: none;
+      transition: border-bottom-color 0.3s;
+    }
+    .cs-input::placeholder { color: rgba(245,240,235,0.25); }
+    .cs-input:focus { border-bottom-color: var(--rose-gold); }
+    .cs-submit {
+      background: transparent;
+      border: none;
+      font-family: var(--font-body);
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--rose-gold);
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      margin-top: 24px;
+      padding: 8px 0;
+      transition: letter-spacing 0.3s ease;
+    }
+    .cs-submit:hover { letter-spacing: 0.3em; }
+
+    /* ───────────────────────────── FOOTER ───────────────────────────── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid rgba(196,149,106,0.1);
+      padding: 48px 0;
+    }
+    .ft-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: center;
+    }
+    .ft-brand {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--rose-gold);
+    }
+    .ft-copy {
+      font-family: var(--font-body);
+      font-size: 10px;
+      color: #3A3830;
+      margin-top: 6px;
+    }
+    .ft-links {
+      font-family: var(--font-body);
+      font-size: 10px;
+      color: #3A3830;
+      letter-spacing: 0.15em;
+      text-align: center;
+    }
+    .ft-social {
+      font-family: var(--font-body);
+      font-size: 10px;
+      color: var(--grey);
+      text-align: right;
+    }
+    .ft-social a {
+      color: var(--grey);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .ft-social a:hover { color: var(--rose-gold); }
+
+    /* ─────────────────────────── RESPONSIVE ─────────────────────────── */
+    @media (max-width: 768px) {
+      /* Header */
+      .h-nav { display: none; }
+      header { padding: 0 20px; height: 60px; }
+      .h-cta { padding: 8px 16px; font-size: 10px; letter-spacing: 0.1em; }
+
+      /* Hero overlays */
+      #ov1 { white-space: normal; width: 90%; left: 5%; transform: none; }
+      #ov1 .ov1-main { font-size: clamp(40px, 11vw, 70px); letter-spacing: 0.2em; white-space: normal; }
+      #ov2 { left: 5%; }
+      #ov2 .ov2-line { font-size: 32px; }
+      #ov3 { right: 5%; }
+      #ov3 .ov3-line { font-size: 22px; }
+      #ov4 { left: 5%; right: 5%; font-size: 9px; }
+      #ov5 { left: 5%; }
+      #ov5 .ov5-word { font-size: 40px; }
+      #ov6 { white-space: normal; width: 82%; left: 9%; transform: none; }
+      #ov6 .ov6-line { font-size: 26px; white-space: normal; }
+      #ov7 { right: 5%; }
+      #ov7-brand { font-size: 44px; }
+      #ov8-btn { padding: 14px 36px; font-size: 11px; }
+
+      /* Treatments section */
+      #treatments { padding: 80px 0; }
+      .sec-title { font-size: 36px; }
+      .carousel-wrap { padding: 20px; gap: 20px; }
+      .carousel-wrap > .card:first-child { margin-left: 0; }
+      .carousel-wrap > .card:last-child  { margin-right: 0; }
+      .card { flex: 0 0 280px; height: auto; min-height: 500px; }
+      .card-name { font-size: 52px; }
+
+      /* Consultation */
+      #consultation { padding: 100px 20px; }
+      .cs-title { font-size: 34px; }
+
+      /* Footer */
+      .ft-inner { grid-template-columns: 1fr; gap: 16px; text-align: center; padding: 0 20px; }
+      .ft-social { text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      #ov1 .ov1-main { font-size: clamp(28px, 10vw, 44px); }
+      #ov2 .ov2-line { font-size: 26px; }
+      #ov5 .ov5-word { font-size: 32px; }
+      #ov7-brand { font-size: 36px; }
+      .card { flex: 0 0 260px; }
+      .card-name { font-size: 44px; }
+      .sec-title { font-size: 30px; }
+      .cs-title { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOADING SCREEN ── -->
+  <div id="loading-screen">
+    <span class="ls-brand">LUMIS</span>
+    <span class="ls-sub">Aesthetic Clinic</span>
+    <div class="ls-bar-wrap">
+      <div id="ls-bar"></div>
+    </div>
+    <span class="ls-label">Preparing your experience...</span>
+  </div>
+
+  <!-- ── FIXED HEADER ── -->
+  <header>
+    <a href="#" class="h-logo">LUMIS</a>
+    <nav>
+      <ul class="h-nav">
+        <li><a href="#treatments">Treatments</a></li>
+        <li><a href="#consultation">About</a></li>
+        <li><a href="#consultation">Contact</a></li>
+      </ul>
+    </nav>
+    <a href="#consultation" class="h-cta">Book Now</a>
+  </header>
+
+  <!-- ── SCROLL PROGRESS (right edge) ── -->
+  <div id="scroll-progress">
+    <div id="scroll-fill"></div>
+  </div>
+
+  <main>
+    <!-- ═══════════════════ HERO (800vh) ══════════════════════ -->
+    <section id="hero">
+      <div id="hero-sticky">
+
+        <!-- Background: gradient (fallback) → canvas (video frames) -->
+        <div id="hero-bg"></div>
+        <canvas id="video-canvas"></canvas>
+
+        <!-- OV1: LUMIS title at 5% scroll -->
+        <div class="ov" id="ov1">
+          <span class="ov1-main">LUMIS</span>
+          <span class="ov1-sub">Aesthetic Clinic</span>
+        </div>
+
+        <!-- OV2: Precision. Science. Artistry. at 18% -->
+        <div class="ov" id="ov2">
+          <span class="ov2-line" id="ov2-0">Precision.</span>
+          <span class="ov2-line" id="ov2-1">Science.</span>
+          <span class="ov2-line" id="ov2-2">Artistry.</span>
+        </div>
+
+        <!-- OV3: Every formulation at 30% -->
+        <div class="ov" id="ov3">
+          <span class="ov3-line" id="ov3-0">Every formulation.</span>
+          <span class="ov3-line" id="ov3-1">Every result.</span>
+          <span class="ov3-line" id="ov3-2">Intentional.</span>
+        </div>
+
+        <!-- OV4: Watch science become beauty at 45% -->
+        <div class="ov" id="ov4">Watch science become beauty.</div>
+
+        <!-- OV5: Cleanse. Restore. Reveal. at 57–63% -->
+        <div class="ov" id="ov5">
+          <span class="ov5-word" id="ov5-0">Cleanse.</span>
+          <span class="ov5-word" id="ov5-1">Restore.</span>
+          <span class="ov5-word" id="ov5-2">Reveal.</span>
+        </div>
+
+        <!-- OV6: What your skin at 72% -->
+        <div class="ov" id="ov6">
+          <span class="ov6-line">What your skin has always</span>
+          <span class="ov6-line">been capable of.</span>
+        </div>
+
+        <!-- OV7: LUMIS. finale at 85% -->
+        <div class="ov" id="ov7">
+          <span id="ov7-brand"></span>
+          <span id="ov7-sub">Where skin meets science.</span>
+        </div>
+
+        <!-- OV8: CTA at 95% -->
+        <div class="ov" id="ov8">
+          <button id="ov8-btn" onclick="document.getElementById('consultation').scrollIntoView({behavior:'smooth'})">
+            Begin Your Consultation →
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════ TREATMENTS ════════════════════════ -->
+    <section id="treatments">
+      <p class="sec-eyebrow">Our Treatments</p>
+      <h2 class="sec-title">Choose your ritual.</h2>
+
+      <div class="carousel-wrap">
+
+        <!-- RADIANCE -->
+        <div class="card card-radiance">
+          <p class="card-name">RADIANCE</p>
+          <p class="card-protocol">Glow &amp; Brightening Protocol</p>
+          <p class="card-desc">Vitamin C infusion. Chemical exfoliation. LED photomodulation.</p>
+          <p class="card-price">From ₹ 8,500</p>
+          <button class="card-cta">Enquire Now</button>
+          <p class="card-note">4–6 SESSIONS RECOMMENDED · RESULTS FROM SESSION 1</p>
+        </div>
+
+        <!-- RESTORE -->
+        <div class="card card-restore">
+          <span class="card-badge">Bestseller</span>
+          <p class="card-name">RESTORE</p>
+          <p class="card-protocol">Deep Hydration &amp; Repair Protocol</p>
+          <p class="card-desc">Hyaluronic acid booster. Collagen induction. Peptide infusion.</p>
+          <p class="card-price">From ₹ 12,000</p>
+          <button class="card-cta">Enquire Now</button>
+          <p class="card-note">4–6 SESSIONS RECOMMENDED · RESULTS FROM SESSION 1</p>
+        </div>
+
+        <!-- SCULPT -->
+        <div class="card card-sculpt">
+          <p class="card-name card-name-pearl">SCULPT</p>
+          <p class="card-protocol">Contouring &amp; Lifting Protocol</p>
+          <p class="card-desc">Microfocused ultrasound. Thread lift prep. Jawline definition.</p>
+          <p class="card-price">From ₹ 18,500</p>
+          <button class="card-cta">Enquire Now</button>
+          <p class="card-note">4–6 SESSIONS RECOMMENDED · RESULTS FROM SESSION 1</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════ CONSULTATION ══════════════════════ -->
+    <section id="consultation">
+      <p class="cs-eyebrow">Begin Your Journey</p>
+      <h2 class="cs-title">Begin your consultation.</h2>
+      <p class="cs-sub">A private conversation. No obligation. No pressure.</p>
+      <form class="cs-form" onsubmit="return false;">
+        <input type="email" class="cs-input" placeholder="Your email address">
+        <button type="submit" class="cs-submit">Reach Out →</button>
+      </form>
+    </section>
+
+    <!-- ═══════════════════ FOOTER ════════════════════════════ -->
+    <footer>
+      <div class="ft-inner">
+        <div>
+          <p class="ft-brand">LUMIS</p>
+          <p class="ft-copy">© 2026 Lumis Clinic. Where skin meets science.</p>
+        </div>
+        <p class="ft-links">RADIANCE · RESTORE · SCULPT</p>
+        <div class="ft-social">
+          <a href="#">Instagram</a> · <a href="#">WhatsApp</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ── GSAP ── -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+    /* ================================================================
+       LUMIS — Scroll-Driven Narrative
+    ================================================================ */
+
+    // ── DOM ──────────────────────────────────────────────────────────
+    const loadingScreen = document.getElementById('loading-screen');
+    const lsBar         = document.getElementById('ls-bar');
+    const canvas        = document.getElementById('video-canvas');
+    const ctx           = canvas.getContext('2d');
+    const heroBg        = document.getElementById('hero-bg');
+    const scrollFill    = document.getElementById('scroll-fill');
+
+    // ── State ────────────────────────────────────────────────────────
+    let frames        = [];
+    let hasVideo      = false;
+    let rafPending    = false;
+    let lastScroll    = -1;
+    let finaleChars   = null;  // cached NodeList
+
+    // ── Canvas sizing ────────────────────────────────────────────────
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', () => { resizeCanvas(); scheduleFrame(); }, { passive: true });
+
+    // ── Smoothstep ───────────────────────────────────────────────────
+    function sc(min, max, v) {
+      if (max <= min) return v >= max ? 1 : 0;
+      const x = Math.max(0, Math.min(1, (v - min) / (max - min)));
+      return x * x * (3 - 2 * x);
+    }
+
+    // ── Draw frame with cover semantics ──────────────────────────────
+    function drawCover(bmp) {
+      const cw = canvas.width, ch = canvas.height;
+      const bw = bmp.width,   bh = bmp.height;
+      const scale = Math.max(cw / bw, ch / bh);
+      const sw = bw * scale, sh = bh * scale;
+      ctx.clearRect(0, 0, cw, ch);
+      ctx.drawImage(bmp, (cw - sw) / 2, (ch - sh) / 2, sw, sh);
+    }
+
+    // ── Frame extraction ─────────────────────────────────────────────
+    const TARGET_FRAMES = 150;
+
+    async function loadVideo() {
+      return new Promise((resolve) => {
+        const video       = document.createElement('video');
+        video.src         = 'lumis-story-final.mp4';
+        video.muted       = true;
+        video.playsInline = true;
+        video.preload     = 'auto';
+        // No crossOrigin — keeps canvas untainted so createImageBitmap works
+
+        let settled = false;
+        function finish(success) {
+          if (settled) return;
+          settled = true;
+          completeLoading(success);
+          resolve();
+        }
+
+        // Bail only if the video file itself fails
+        video.addEventListener('error', () => finish(false));
+        // Safety net: if metadata never arrives in 10s, file is inaccessible
+        let metaTimer = setTimeout(() => finish(false), 10000);
+
+        video.addEventListener('loadedmetadata', async () => {
+          clearTimeout(metaTimer);
+          const duration   = video.duration;
+          if (!duration || !isFinite(duration)) { finish(false); return; }
+
+          const count    = Math.min(TARGET_FRAMES, Math.max(30, Math.floor(duration * 24)));
+          const interval = duration / count;
+
+          // Temp extraction canvas (capped for memory safety)
+          const tw  = Math.min(window.innerWidth,  1920);
+          const th  = Math.min(window.innerHeight, 1080);
+          const tmp = document.createElement('canvas');
+          tmp.width = tw; tmp.height = th;
+          const tCtx = tmp.getContext('2d');
+
+          for (let i = 0; i <= count; i++) {
+            video.currentTime = i * interval;
+            await new Promise(r => video.addEventListener('seeked', r, { once: true }));
+            tCtx.drawImage(video, 0, 0, tw, th);
+            try {
+              frames.push(await createImageBitmap(tmp));
+            } catch (_) { /* skip */ }
+            lsBar.style.width = Math.round((i / count) * 100) + '%';
+          }
+
+          hasVideo = frames.length > 0;
+          finish(hasVideo);
+        });
+
+        video.load();
+      });
+    }
+
+    function completeLoading(withVideo) {
+      lsBar.style.width = '100%';
+      setTimeout(() => {
+        loadingScreen.classList.add('fade-out');
+        if (withVideo) {
+          canvas.style.opacity = '1';
+          heroBg.style.opacity = '0';
+        }
+        setTimeout(() => {
+          loadingScreen.style.display = 'none';
+          initSite();
+        }, 1200);
+      }, 300);
+    }
+
+    // ── Build finale character spans (once) ──────────────────────────
+    function buildFinaleChars() {
+      const el = document.getElementById('ov7-brand');
+      'LUMIS.'.split('').forEach(c => {
+        const s = document.createElement('span');
+        s.className   = 'ch';
+        s.textContent = c;
+        s.style.opacity = '0';
+        el.appendChild(s);
+      });
+      finaleChars = el.querySelectorAll('.ch');
+      document.getElementById('ov7-sub').style.opacity = '0';
+    }
+
+    // ── Main scene update (called from rAF loop) ──────────────────────
+    function updateScene() {
+      const scrollY = window.scrollY;
+      const hero    = document.getElementById('hero');
+      const heroMax = hero.offsetHeight - window.innerHeight;
+      const hp      = Math.max(0, Math.min(1, scrollY / heroMax));   // hero progress
+      const tp      = Math.max(0, Math.min(1, scrollY / (document.body.scrollHeight - window.innerHeight)));
+
+      // Scroll progress bar (total page)
+      scrollFill.style.height = (tp * 100) + '%';
+
+      // Canvas frame
+      if (hasVideo && frames.length > 0) {
+        const fi = Math.min(frames.length - 1, Math.floor(hp * (frames.length - 1)));
+        drawCover(frames[fi]);
+      }
+
+      // Overlays are only relevant inside the hero
+      const pastHero = scrollY > heroMax + 10;
+      updateOverlays(hp, pastHero);
+    }
+
+    // ── Overlay controller ────────────────────────────────────────────
+    function setOp(el, v) {
+      el.style.opacity = v <= 0 ? '0' : v >= 1 ? '1' : String(v);
+    }
+
+    function updateOverlays(p, pastHero) {
+      // Hide everything once past hero
+      if (pastHero) {
+        ['ov1','ov2','ov3','ov4','ov5','ov6','ov7','ov8']
+          .forEach(id => { document.getElementById(id).style.opacity = '0'; });
+        return;
+      }
+
+      // ── OV1: LUMIS hero — fade in 3→5%, fade out 13→15%
+      setOp(document.getElementById('ov1'),
+        sc(0.03, 0.05, p) * (1 - sc(0.13, 0.15, p)));
+
+      // ── OV2: Precision/Science/Artistry — staggered in 16→22%, out 26→28%
+      const ov2out = 1 - sc(0.26, 0.28, p);
+      ['ov2-0','ov2-1','ov2-2'].forEach((id, i) => {
+        const s = 0.16 + i * 0.02;
+        setOp(document.getElementById(id), sc(s, s + 0.025, p) * ov2out);
+      });
+
+      // ── OV3: Every formulation — slide in 28→32%, out 40→42%
+      const ov3out = 1 - sc(0.40, 0.42, p);
+      ['ov3-0','ov3-1','ov3-2'].forEach((id, i) => {
+        const s  = 0.28 + i * 0.012;
+        const ip = sc(s, s + 0.025, p);
+        const el = document.getElementById(id);
+        el.style.opacity   = String(ip * ov3out);
+        el.style.transform = `translateX(${(1 - ip) * 30}px)`;
+      });
+
+      // ── OV4: Watch science become beauty — in 43→45%, out 49→51%
+      setOp(document.getElementById('ov4'),
+        sc(0.43, 0.45, p) * (1 - sc(0.49, 0.51, p)));
+
+      // ── OV5: Cleanse/Restore/Reveal — staggered in, out 68→70%
+      const ov5out = 1 - sc(0.68, 0.70, p);
+      [
+        { id: 'ov5-0', s: 0.55, e: 0.57 },
+        { id: 'ov5-1', s: 0.58, e: 0.60 },
+        { id: 'ov5-2', s: 0.61, e: 0.63 },
+      ].forEach(({ id, s, e }) => {
+        setOp(document.getElementById(id), sc(s, e, p) * ov5out);
+      });
+
+      // ── OV6: What your skin — in 70→73%, out 82→84%
+      setOp(document.getElementById('ov6'),
+        sc(0.70, 0.73, p) * (1 - sc(0.82, 0.84, p)));
+
+      // ── OV7: LUMIS. char reveal 83→92%, subtitle 91→95%
+      const ov7visible = sc(0.83, 0.84, p);
+      document.getElementById('ov7').style.opacity = String(ov7visible);
+      if (finaleChars) {
+        finaleChars.forEach((el, i) => {
+          const s = 0.83 + (i / 6) * 0.09;
+          el.style.opacity = String(sc(s, s + 0.015, p));
+        });
+        setOp(document.getElementById('ov7-sub'), sc(0.91, 0.95, p));
+      }
+
+      // ── OV8: CTA — in 93→96%
+      const ov8op = sc(0.93, 0.96, p);
+      const ov8   = document.getElementById('ov8');
+      ov8.style.opacity      = String(ov8op);
+      ov8.style.pointerEvents = ov8op > 0.5 ? 'auto' : 'none';
+    }
+
+    // ── rAF loop ─────────────────────────────────────────────────────
+    function scheduleFrame() {
+      if (!rafPending) {
+        rafPending = true;
+        requestAnimationFrame(() => {
+          rafPending = false;
+          if (window.scrollY !== lastScroll) {
+            lastScroll = window.scrollY;
+            updateScene();
+          } else {
+            updateScene(); // still update (resize, etc.)
+          }
+        });
+      }
+    }
+
+    window.addEventListener('scroll', scheduleFrame, { passive: true });
+
+    // ── Site init (after loading) ─────────────────────────────────────
+    function initSite() {
+      buildFinaleChars();
+      scheduleFrame(); // draw first frame
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Entrance: section eyebrow + title
+      gsap.from(['.sec-eyebrow', '.sec-title'], {
+        y: 36,
+        opacity: 0,
+        stagger: 0.18,
+        duration: 1.4,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: '#treatments', start: 'top 78%' },
+      });
+
+      // Entrance: cards
+      gsap.from('.card', {
+        y: 50,
+        opacity: 0,
+        stagger: 0.2,
+        duration: 1.2,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: '.carousel-wrap', start: 'top 82%' },
+      });
+
+      // Entrance: consultation block
+      gsap.from(['.cs-eyebrow', '.cs-title', '.cs-sub', '.cs-form'], {
+        y: 28,
+        opacity: 0,
+        stagger: 0.15,
+        duration: 1.3,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: '#consultation', start: 'top 75%' },
+      });
+    }
+
+    // ── Boot ─────────────────────────────────────────────────────────
+    loadVideo();
+  </script>
+</body>
+</html>

@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOIR &amp; EMBER — Premium Specialty Coffee</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+html{scroll-behavior:auto}
+
+body{
+  background:#040302;
+  color:#fff;
+  font-family:'DM Sans',sans-serif;
+  overflow-x:hidden;
+}
+
+/* ── LOADER ── */
+#loader{
+  position:fixed;inset:0;
+  background:#040302;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:1000;gap:28px;
+  transition:opacity 0.8s ease;
+}
+#loader-brand{
+  font-family:'Cormorant Garamond',serif;
+  font-size:46px;color:#C9952C;
+  letter-spacing:0.2em;font-weight:400;
+}
+#loader-bar-wrap{
+  width:200px;height:1px;
+  background:rgba(201,149,44,0.18);
+  position:relative;overflow:hidden;
+}
+#loader-bar{
+  position:absolute;top:0;left:0;
+  height:100%;width:0%;
+  background:rgba(201,149,44,0.8);
+  transition:width 0.12s linear;
+}
+#loader-hint{
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;color:rgba(255,255,255,0.28);
+  letter-spacing:0.12em;
+}
+
+/* ── FIXED HEADER ── */
+.site-header{
+  position:fixed;top:0;left:0;right:0;
+  height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 44px;
+  z-index:200;
+  background:transparent;
+}
+.header-brand{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;color:#C9952C;
+  letter-spacing:0.25em;font-weight:400;
+  text-decoration:none;
+}
+.header-shop{
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;text-transform:uppercase;
+  color:rgba(255,255,255,0.6);
+  letter-spacing:0.15em;
+  text-decoration:none;cursor:pointer;
+}
+
+/* ── SCROLL PROGRESS BAR ── */
+#scroll-track{
+  position:fixed;right:0;top:0;
+  width:2px;height:100vh;
+  background:rgba(201,149,44,0.15);
+  z-index:100;
+}
+#scroll-fill{
+  width:100%;height:0%;
+  background:rgba(201,149,44,0.8);
+}
+
+/* ── HERO ── */
+#hero{height:800vh;position:relative}
+
+#hero-sticky{
+  position:sticky;top:0;
+  width:100%;height:100vh;
+  overflow:hidden;
+}
+
+#video-canvas{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  display:block;
+}
+
+/* ── OVERLAYS ── */
+.overlay{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+  text-shadow:0 0 40px rgba(0,0,0,0.8),0 2px 12px rgba(0,0,0,0.9);
+  will-change:opacity,transform;
+  z-index:10;
+}
+
+#ol-title{
+  top:14%;left:50%;
+  transform:translateX(-50%);
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(58px,8vw,110px);
+  letter-spacing:0.3em;
+  color:rgba(201,149,44,0.9);
+  font-weight:400;
+  white-space:nowrap;
+}
+
+#ol-one-bean{
+  bottom:15%;left:8%;
+  font-family:'Cormorant Garamond',serif;
+  font-size:42px;font-style:italic;
+  color:rgba(255,255,255,0.85);
+  font-weight:300;
+}
+
+#ol-fire{
+  top:18%;right:8%;
+  font-family:'Cormorant Garamond',serif;
+  font-size:38px;
+  color:rgba(201,149,44,0.8);
+  font-weight:400;
+  text-align:right;
+}
+
+#ol-ground{
+  bottom:8%;left:8%;
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;text-transform:uppercase;
+  letter-spacing:0.3em;
+  color:rgba(255,255,255,0.5);
+}
+
+#ol-pour{
+  top:50%;left:8%;
+  transform:translateY(-50%);
+  font-family:'Cormorant Garamond',serif;
+  font-size:60px;color:rgba(255,255,255,0.9);
+  font-weight:300;
+}
+
+#ol-wait{
+  top:calc(50% + 70px);left:8%;
+  font-family:'Cormorant Garamond',serif;
+  font-size:60px;color:rgba(255,255,255,0.9);
+  font-weight:300;
+}
+
+#ol-breathe{
+  top:calc(50% + 140px);left:8%;
+  font-family:'Cormorant Garamond',serif;
+  font-size:60px;color:rgba(255,255,255,0.9);
+  font-weight:300;
+}
+
+#ol-every-drop{
+  top:12%;left:50%;
+  transform:translateX(-50%);
+  font-family:'Cormorant Garamond',serif;
+  font-size:44px;font-style:italic;
+  color:rgba(201,149,44,0.85);
+  white-space:nowrap;
+  font-weight:300;
+}
+
+#ol-slow{
+  bottom:12%;right:8%;
+  font-family:'Cormorant Garamond',serif;
+  font-size:60px;color:rgba(255,255,255,0.9);
+  font-weight:300;
+  text-align:right;
+  display:flex;
+}
+#ol-slow span{opacity:0;display:inline-block}
+
+#ol-cta{
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+#ritual-btn{
+  background:transparent;
+  border:1px solid rgba(201,149,44,0.6);
+  color:rgba(201,149,44,0.9);
+  padding:18px 48px;
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;text-transform:uppercase;
+  letter-spacing:0.2em;
+  cursor:pointer;
+  transition:background 0.35s ease,border-color 0.35s ease,color 0.35s ease;
+  pointer-events:auto;
+}
+#ritual-btn:hover{
+  background:rgba(201,149,44,0.15);
+  border-color:rgba(201,149,44,0.9);
+  color:rgba(201,149,44,1);
+}
+
+/* ── COLLECTION ── */
+#collection{
+  background:#040302;
+  padding:120px 0 100px;
+}
+.collection-header{
+  text-align:center;
+  margin-bottom:72px;
+  padding:0 40px;
+}
+.collection-eyebrow{
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;text-transform:uppercase;
+  letter-spacing:0.28em;color:#C9952C;
+  display:block;margin-bottom:18px;
+}
+.collection-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(42px,5vw,62px);
+  color:#fff;font-weight:300;line-height:1;
+}
+
+.carousel-track{
+  display:flex;gap:32px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  padding:20px max(24px,calc(50vw - 190px));
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;
+}
+.carousel-track::-webkit-scrollbar{display:none}
+
+.card{
+  flex:0 0 380px;height:560px;
+  scroll-snap-align:center;
+  border-radius:2px;
+  padding:44px 36px 40px;
+  display:flex;flex-direction:column;
+  justify-content:space-between;
+  position:relative;cursor:pointer;
+  transition:transform 0.4s cubic-bezier(0.16,1,0.3,1),
+             box-shadow 0.4s cubic-bezier(0.16,1,0.3,1);
+  overflow:hidden;
+}
+.card:hover{transform:translateY(-12px)}
+
+#card-altura{
+  background:linear-gradient(160deg,#1a1208,#2d1f0c);
+  border-top:1px solid rgba(201,149,44,0.85);
+}
+#card-altura:hover{
+  box-shadow:0 32px 64px rgba(0,0,0,0.7),
+             0 0 0 1px rgba(201,149,44,0.35);
+}
+#card-obscura{
+  background:linear-gradient(160deg,#0a0a0a,#1a0d05);
+  box-shadow:0 0 0 1px rgba(201,149,44,0.3);
+}
+#card-obscura:hover{
+  box-shadow:0 32px 64px rgba(0,0,0,0.85),
+             0 0 0 1px rgba(201,149,44,0.65),
+             0 0 48px rgba(201,149,44,0.08);
+}
+#card-solstice{
+  background:linear-gradient(160deg,#050505,#100a1a);
+  border:1px solid rgba(255,255,255,0.05);
+}
+#card-solstice:hover{
+  box-shadow:0 32px 64px rgba(0,0,0,0.85),
+             0 0 0 1px rgba(201,149,44,0.28);
+}
+
+.card-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:70px;font-weight:300;
+  line-height:0.88;letter-spacing:0.02em;
+}
+#card-altura .card-name{color:#C9952C}
+#card-obscura .card-name{color:#C9952C}
+#card-solstice .card-name{color:#fff}
+
+.card-type{
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;text-transform:uppercase;
+  letter-spacing:0.22em;color:rgba(255,255,255,0.38);
+  margin-top:14px;
+}
+.card-notes{
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;color:rgba(255,255,255,0.6);
+  line-height:1.65;
+}
+.card-price{
+  font-family:'Cormorant Garamond',serif;
+  font-size:32px;color:#fff;font-weight:300;
+  margin-top:20px;
+}
+.card-btn{
+  margin-top:18px;
+  display:block;width:100%;
+  padding:14px;
+  background:transparent;
+  border:1px solid rgba(201,149,44,0.38);
+  color:rgba(201,149,44,0.8);
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;text-transform:uppercase;
+  letter-spacing:0.22em;
+  cursor:pointer;
+  transition:background 0.3s ease,border-color 0.3s ease,color 0.3s ease;
+}
+.card-btn:hover{
+  background:rgba(201,149,44,0.1);
+  border-color:rgba(201,149,44,0.7);
+  color:rgba(201,149,44,1);
+}
+.card-origin{
+  margin-top:14px;
+  font-family:'DM Sans',sans-serif;
+  font-size:10px;text-transform:uppercase;
+  letter-spacing:0.16em;color:rgba(255,255,255,0.28);
+}
+.card-badge{
+  position:absolute;top:20px;right:20px;
+  font-family:'DM Sans',sans-serif;
+  font-size:9px;text-transform:uppercase;
+  letter-spacing:0.16em;color:#C9952C;
+  border:1px solid rgba(201,149,44,0.45);
+  padding:4px 10px;
+}
+
+/* ── NEWSLETTER ── */
+#newsletter{
+  background-image:
+    linear-gradient(to bottom,
+      rgba(4,3,2,0.88) 0%,
+      rgba(4,3,2,0.60) 35%,
+      rgba(4,3,2,0.65) 65%,
+      rgba(4,3,2,0.95) 100%),
+    url('newsletter-bg.jpg');
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+  padding:140px 40px 160px;
+  text-align:center;
+}
+.newsletter-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:52px;color:#fff;font-weight:300;
+  margin-bottom:18px;
+}
+.newsletter-sub{
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;color:rgba(255,255,255,0.32);
+  letter-spacing:0.06em;margin-bottom:52px;
+}
+.newsletter-form{
+  display:flex;flex-direction:column;
+  align-items:center;gap:24px;
+}
+.newsletter-input{
+  width:320px;
+  background:transparent;border:none;
+  border-bottom:1px solid rgba(201,149,44,0.55);
+  color:#fff;
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  padding:10px 0;outline:none;
+  text-align:center;letter-spacing:0.06em;
+  transition:border-color 0.3s ease;
+}
+.newsletter-input::placeholder{color:rgba(255,255,255,0.22)}
+.newsletter-input:focus{border-bottom-color:rgba(201,149,44,0.9)}
+.newsletter-submit{
+  background:transparent;border:none;
+  color:#C9952C;
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  letter-spacing:0.22em;text-transform:uppercase;
+  cursor:pointer;padding:8px 0;
+  border-bottom:1px solid transparent;
+  transition:border-color 0.3s ease;
+}
+.newsletter-submit:hover{border-bottom-color:#C9952C}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid rgba(201,149,44,0.15);
+  padding:40px 44px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:#040302;
+}
+.footer-brand{
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;color:#C9952C;
+  font-weight:400;letter-spacing:0.12em;
+}
+.footer-copy{
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;color:rgba(255,255,255,0.22);
+  letter-spacing:0.05em;
+}
+.footer-social{
+  font-family:'DM Sans',sans-serif;
+  font-size:11px;color:rgba(255,255,255,0.38);
+  letter-spacing:0.1em;
+}
+.footer-social span{
+  cursor:pointer;
+  transition:color 0.3s ease;
+}
+.footer-social span:hover{
+  color:rgba(255,255,255,0.8);
+  text-decoration:underline;
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOADER ── -->
+<div id="loader">
+  <div id="loader-brand">NOIR &amp; EMBER</div>
+  <div id="loader-bar-wrap">
+    <div id="loader-bar"></div>
+  </div>
+  <div id="loader-hint">Preparing the ritual...</div>
+</div>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <a class="header-brand" href="#">NOIR &amp; EMBER</a>
+  <a class="header-shop" href="#collection">SHOP</a>
+</header>
+
+<!-- ── SCROLL BAR ── -->
+<div id="scroll-track"><div id="scroll-fill"></div></div>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div id="hero-sticky">
+
+    <canvas id="video-canvas"></canvas>
+
+    <div class="overlay" id="ol-title">NOIR &amp; EMBER</div>
+
+    <div class="overlay" id="ol-one-bean">One Bean.</div>
+
+    <div class="overlay" id="ol-fire">Fire Changes Everything.</div>
+
+    <div class="overlay" id="ol-ground">Ground With Purpose.</div>
+
+    <div class="overlay" id="ol-pour">Pour.</div>
+    <div class="overlay" id="ol-wait">Wait.</div>
+    <div class="overlay" id="ol-breathe">Breathe.</div>
+
+    <div class="overlay" id="ol-every-drop">Every Drop Matters.</div>
+
+    <div class="overlay" id="ol-slow"></div>
+
+    <div class="overlay" id="ol-cta">
+      <button id="ritual-btn">BEGIN THE RITUAL &#x2192;</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── COLLECTION ── -->
+<section id="collection">
+  <div class="collection-header">
+    <span class="collection-eyebrow">THE COLLECTION</span>
+    <h2 class="collection-title">Choose your roast.</h2>
+  </div>
+
+  <div class="carousel-track">
+
+    <!-- ALTURA -->
+    <div class="card" id="card-altura">
+      <div>
+        <div class="card-name">ALTURA</div>
+        <div class="card-type">High-Altitude Light Roast</div>
+      </div>
+      <div>
+        <div class="card-notes">Bergamot. Stone fruit. Honeyed acidity.</div>
+        <div class="card-price">&#x20B9;&nbsp;1,290</div>
+        <button class="card-btn">ADD TO RITUAL</button>
+        <div class="card-origin">250G &middot; Single Origin &middot; Ethiopia</div>
+      </div>
+    </div>
+
+    <!-- OBSCURA -->
+    <div class="card" id="card-obscura">
+      <div class="card-badge">Bestseller</div>
+      <div>
+        <div class="card-name">OBSCURA</div>
+        <div class="card-type">Dark Roast Espresso</div>
+      </div>
+      <div>
+        <div class="card-notes">Dark cocoa. Roasted hazelnut. Low acidity.</div>
+        <div class="card-price">&#x20B9;&nbsp;1,490</div>
+        <button class="card-btn">ADD TO RITUAL</button>
+        <div class="card-origin">250G &middot; Blend &middot; Brazil &middot; Sumatra</div>
+      </div>
+    </div>
+
+    <!-- SOLSTICE -->
+    <div class="card" id="card-solstice">
+      <div>
+        <div class="card-name">SOLSTICE</div>
+        <div class="card-type">Medium Roast Reserve</div>
+      </div>
+      <div>
+        <div class="card-notes">Brown sugar. Orange peel. Velvet body.</div>
+        <div class="card-price">&#x20B9;&nbsp;1,390</div>
+        <button class="card-btn">ADD TO RITUAL</button>
+        <div class="card-origin">250G &middot; Reserve &middot; Colombia &middot; Guatemala</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── NEWSLETTER ── -->
+<section id="newsletter">
+  <h2 class="newsletter-title">Join the ritual.</h2>
+  <p class="newsletter-sub">Be the first to know. No noise. Only craft.</p>
+  <form class="newsletter-form" onsubmit="return false">
+    <input type="email" class="newsletter-input" placeholder="your@email.com">
+    <button type="submit" class="newsletter-submit">BEGIN &#x2192;</button>
+  </form>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">NOIR &amp; EMBER</div>
+  <div class="footer-copy">&copy; 2026 Noir &amp; Ember. Roasted in silence.</div>
+  <div class="footer-social">
+    <span>Instagram</span> &middot; <span>YouTube</span>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ── CANVAS SETUP ──────────────────────────────────────────────────────────────
+const canvas = document.getElementById('video-canvas');
+const ctx    = canvas.getContext('2d');
+
+function sizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+sizeCanvas();
+
+// ── FRAME STORE ───────────────────────────────────────────────────────────────
+const TOTAL_FRAMES = 200;
+const frames = [];
+
+// ── BUILD "SLOW IS BETTER." CHAR SPANS ───────────────────────────────────────
+const SLOW_TEXT = 'Slow Is Better.';
+const slowEl    = document.getElementById('ol-slow');
+SLOW_TEXT.split('').forEach(ch => {
+  const s = document.createElement('span');
+  s.textContent = ch === ' ' ? ' ' : ch;
+  slowEl.appendChild(s);
+});
+const slowSpans = [...slowEl.querySelectorAll('span')];
+
+// ── LOAD & EXTRACT FRAMES ─────────────────────────────────────────────────────
+function setProgress(v) {
+  document.getElementById('loader-bar').style.width = (v * 100).toFixed(1) + '%';
+}
+
+function makePlaceholderFrames() {
+  const c  = document.createElement('canvas');
+  c.width  = canvas.width;
+  c.height = canvas.height;
+  const cx = c.getContext('2d');
+  const grad = cx.createRadialGradient(
+    c.width * 0.5, c.height * 0.5, 0,
+    c.width * 0.5, c.height * 0.5, c.width * 0.7
+  );
+  grad.addColorStop(0,   'rgba(60,35,10,1)');
+  grad.addColorStop(0.5, 'rgba(20,12,4,1)');
+  grad.addColorStop(1,   'rgba(4,3,2,1)');
+  for (let i = 0; i < TOTAL_FRAMES; i++) {
+    cx.fillStyle = grad;
+    cx.fillRect(0, 0, c.width, c.height);
+    // subtle vignette shift per frame
+    const snap = document.createElement('canvas');
+    snap.width  = c.width;
+    snap.height = c.height;
+    snap.getContext('2d').drawImage(c, 0, 0);
+    frames.push(snap);
+    setProgress((i + 1) / TOTAL_FRAMES);
+  }
+}
+
+async function extractFrames() {
+  return new Promise(resolve => {
+    const video       = document.createElement('video');
+    video.src         = '/coffee-story-final.mp4';
+    video.preload     = 'auto';
+    video.muted       = true;
+    video.playsInline = true;
+    video.crossOrigin = 'anonymous';
+
+    const tmp   = document.createElement('canvas');
+    tmp.width   = canvas.width;
+    tmp.height  = canvas.height;
+    const tctx  = tmp.getContext('2d');
+
+    video.addEventListener('error', () => {
+      makePlaceholderFrames();
+      resolve();
+    });
+
+    video.addEventListener('loadedmetadata', async () => {
+      const dur = video.duration;
+
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        video.currentTime = (i / (TOTAL_FRAMES - 1)) * dur;
+        await new Promise(r => video.addEventListener('seeked', r, { once: true }));
+
+        tctx.drawImage(video, 0, 0, tmp.width, tmp.height);
+
+        try {
+          frames.push(await createImageBitmap(tmp));
+        } catch (_) {
+          const snap  = document.createElement('canvas');
+          snap.width  = tmp.width;
+          snap.height = tmp.height;
+          snap.getContext('2d').drawImage(tmp, 0, 0);
+          frames.push(snap);
+        }
+
+        setProgress((i + 1) / TOTAL_FRAMES);
+      }
+
+      resolve();
+    });
+
+    // Trigger load; error fires if file absent
+    video.load();
+
+    // Safari sometimes doesn't fire error; fall back after timeout
+    setTimeout(() => {
+      if (frames.length === 0) {
+        makePlaceholderFrames();
+        resolve();
+      }
+    }, 6000);
+  });
+}
+
+// ── RENDER FRAME ─────────────────────────────────────────────────────────────
+let currentIdx = 0;
+
+function drawFrame(idx) {
+  const f = frames[idx];
+  if (!f) return;
+  ctx.drawImage(f, 0, 0, canvas.width, canvas.height);
+}
+
+// ── SCROLL MATH ──────────────────────────────────────────────────────────────
+function heroProgress() {
+  const hero  = document.getElementById('hero');
+  const top   = hero.getBoundingClientRect().top; // negative when scrolled in
+  const total = hero.offsetHeight - window.innerHeight;
+  return Math.max(0, Math.min(1, -top / total));
+}
+
+function pageProgress() {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  return max > 0 ? window.scrollY / max : 0;
+}
+
+// ── OVERLAY MATH ─────────────────────────────────────────────────────────────
+// Returns 0→1→1→0 over [a,b,c,d] scroll positions
+function band(p, a, b, c, d) {
+  if (p < a || p > d) return 0;
+  if (p < b) return (p - a) / (b - a);
+  if (p <= c) return 1;
+  return 1 - (p - c) / (d - c);
+}
+
+// Slide from right: starts at translateX(+off), arrives at 0
+function slideRight(p, showAt, peakAt, holdUntil, hideAt, off) {
+  const op = band(p, showAt, peakAt, holdUntil, hideAt);
+  let tx = 0;
+  if (p < peakAt && p >= showAt) {
+    tx = off * (1 - (p - showAt) / (peakAt - showAt));
+  }
+  return { op, tx };
+}
+
+// ── UPDATE OVERLAYS ───────────────────────────────────────────────────────────
+function updateOverlays(p) {
+  // 1 · NOIR & EMBER title — 4 % ↑ peak 6 % hold 12 % ↓ 14 %
+  document.getElementById('ol-title').style.opacity = band(p, 0.04, 0.06, 0.12, 0.14);
+
+  // 2 · One Bean. — 16 % → 28 %
+  document.getElementById('ol-one-bean').style.opacity = band(p, 0.16, 0.19, 0.24, 0.28);
+
+  // 3 · Fire Changes Everything. — slide from right 30–34 %, hold to 38 %, gone 42 %
+  const fire = slideRight(p, 0.30, 0.34, 0.38, 0.42, 90);
+  const fireEl = document.getElementById('ol-fire');
+  fireEl.style.opacity   = fire.op;
+  fireEl.style.transform = `translateX(${fire.tx}px)`;
+
+  // 4 · Ground With Purpose. — 45 → 55 %
+  document.getElementById('ol-ground').style.opacity = band(p, 0.45, 0.48, 0.52, 0.56);
+
+  // 5 · Pour / Wait / Breathe — staggered appear, all gone at 70 %
+  document.getElementById('ol-pour').style.opacity    = band(p, 0.58, 0.595, 0.66, 0.70);
+  document.getElementById('ol-wait').style.opacity    = band(p, 0.61, 0.625, 0.66, 0.70);
+  document.getElementById('ol-breathe').style.opacity = band(p, 0.64, 0.655, 0.66, 0.70);
+
+  // 6 · Every Drop Matters. — 78 → 88 %
+  document.getElementById('ol-every-drop').style.opacity = band(p, 0.78, 0.81, 0.84, 0.88);
+
+  // 7 · Slow Is Better. — char reveal 90–96 %, fade 97–99 %
+  updateSlowReveal(p);
+
+  // 8 · CTA button — fades in at 96 %, stays
+  const ctaOp = band(p, 0.96, 0.975, 1.0, 1.01);
+  const ctaEl  = document.getElementById('ol-cta');
+  ctaEl.style.opacity       = ctaOp;
+  ctaEl.style.pointerEvents = p >= 0.96 ? 'auto' : 'none';
+}
+
+function updateSlowReveal(p) {
+  const START = 0.90, END = 0.96, FADE_S = 0.97, FADE_E = 0.99;
+  if (p < START) { slowSpans.forEach(s => (s.style.opacity = 0)); return; }
+
+  const reveal  = Math.max(0, Math.min(1, (p - START) / (END - START))) * slowSpans.length;
+  const dimmer  = p > FADE_S ? Math.max(0, 1 - (p - FADE_S) / (FADE_E - FADE_S)) : 1;
+
+  slowSpans.forEach((s, i) => {
+    const charP = Math.max(0, Math.min(1, reveal - i));
+    s.style.opacity = charP * 0.9 * dimmer;
+  });
+}
+
+// ── MAIN SCROLL UPDATE ────────────────────────────────────────────────────────
+let rafPending = false;
+
+function tick() {
+  rafPending = false;
+
+  const p  = heroProgress();
+  const pp = pageProgress();
+
+  // Map scroll → frame
+  const idx = Math.round(p * (frames.length - 1));
+  if (idx !== currentIdx) {
+    currentIdx = idx;
+    drawFrame(currentIdx);
+  }
+
+  updateOverlays(p);
+
+  document.getElementById('scroll-fill').style.height = (pp * 100).toFixed(2) + '%';
+}
+
+function onScroll() {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(tick);
+}
+
+// ── GSAP (post-hero sections) ─────────────────────────────────────────────────
+function initGSAP() {
+  gsap.from('.collection-header', {
+    scrollTrigger: { trigger: '#collection', start: 'top 82%' },
+    opacity: 0, y: 32, duration: 1.2, ease: 'power3.out',
+  });
+
+  gsap.from('.card', {
+    scrollTrigger: { trigger: '.carousel-track', start: 'top 80%' },
+    opacity: 0, y: 48, duration: 1.0, stagger: 0.14, ease: 'power3.out',
+  });
+
+  gsap.from(['.newsletter-title', '.newsletter-sub', '.newsletter-form'], {
+    scrollTrigger: { trigger: '#newsletter', start: 'top 78%' },
+    opacity: 0, y: 28, duration: 1.1, stagger: 0.18, ease: 'power3.out',
+  });
+
+  gsap.from('footer > *', {
+    scrollTrigger: { trigger: 'footer', start: 'top 92%' },
+    opacity: 0, duration: 0.9, stagger: 0.1, ease: 'power2.out',
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function hideLoader() {
+  const l = document.getElementById('loader');
+  l.style.opacity = '0';
+  setTimeout(() => { l.style.display = 'none'; }, 820);
+}
+
+window.addEventListener('resize', () => {
+  sizeCanvas();
+  if (frames.length > 0) drawFrame(currentIdx);
+});
+
+(async function init() {
+  await extractFrames();
+  hideLoader();
+
+  drawFrame(0);
+  tick();
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  initGSAP();
+}());
+</script>
+</body>
+</html>

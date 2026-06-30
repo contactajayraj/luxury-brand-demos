@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LUMIS — Aesthetic Clinic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --beige:        #F5F0E8;
+  --beige-deep:   #EDE8DC;
+  --cream:        #FAF7F2;
+  --espresso:     #2C2420;
+  --espresso-mid: #3E3028;
+  --gold:         #B8935A;
+  --gold-light:   #D4AA78;
+  --gold-pale:    #E8D5B5;
+  --gold-dim:     #9A7A48;
+  --taupe:        #8C7B6B;
+  --sand:         #C4B49A;
+  --sand-light:   #DDD0BC;
+}
+
+html { scroll-behavior: auto; }
+
+body {
+  background: var(--beige);
+  color: var(--espresso);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ── LOADING SCREEN ── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--beige);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+#loading-screen .l-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+}
+#loading-screen .l-sub {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--taupe);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+}
+#loading-screen .l-bar-wrap {
+  width: 200px;
+  height: 1px;
+  background: var(--gold-pale);
+  margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+}
+#loading-screen .l-bar-fill {
+  height: 1px;
+  background: var(--gold);
+  width: 0%;
+  transition: width 0.1s linear;
+}
+#loading-screen .l-note {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--sand);
+}
+
+/* ── FIXED HEADER ── */
+#site-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 72px;
+  background: rgba(245,240,232,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--gold-pale);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  z-index: 200;
+}
+.header-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.2em;
+  text-decoration: none;
+}
+.header-nav {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+.header-nav a {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--taupe);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.header-nav a:hover { color: var(--gold); }
+.header-book {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  border: 1px solid var(--gold-pale);
+  padding: 10px 28px;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+.header-book:hover { background: var(--gold-pale); }
+
+/* ── SCROLL PROGRESS BAR ── */
+#scroll-progress {
+  position: fixed;
+  top: 0; right: 0;
+  width: 1px;
+  height: 100vh;
+  background: var(--gold-pale);
+  z-index: 100;
+}
+#scroll-progress-fill {
+  width: 1px;
+  height: 0%;
+  background: var(--gold);
+  transition: height 0.05s linear;
+}
+
+/* ── VIDEO SCROLL SECTION ── */
+#video-section {
+  position: relative;
+  height: 800vh;
+}
+#video-canvas-wrap {
+  position: sticky;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+#video-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── TEXT OVERLAYS ── */
+.overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+.overlay-text {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.overlay-text.visible { opacity: 1; }
+
+/* Phase 0 (0-5%) */
+#p0-headline {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(36px, 5vw, 58px);
+  font-weight: 700;
+  font-style: italic;
+  color: var(--cream);
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40);
+  width: 100%;
+  top: 28%;
+  left: 0;
+}
+#p0-sub {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: var(--cream);
+  text-shadow: 0 1px 10px rgba(0,0,0,0.75);
+  text-align: center;
+  width: 100%;
+  top: 44%;
+  left: 0;
+}
+/* outer wrapper — JS sets opacity here, composites down to child */
+#p0-line {
+  width: 80px;
+  height: 1px;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+/* inner visual — CSS animation only modulates within parent opacity */
+.p0-line-inner {
+  width: 100%;
+  height: 100%;
+  background: var(--gold);
+}
+
+/* Phase 1 (5-18%) */
+#p1-headline {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(30px, 4.5vw, 52px);
+  font-weight: 700;
+  font-style: italic;
+  color: var(--cream);
+  text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40);
+  left: 6%;
+  top: 20%;
+}
+#p1-headline .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  margin-right: 0.25em;
+}
+#p1-headline .word.in { opacity: 1; transform: translateY(0); }
+#p1-body {
+  right: 6%;
+  top: 18%;
+  width: 320px;
+  text-align: right;
+}
+#p1-body .body-line {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 15px;
+  color: var(--cream);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  opacity: 0;
+  line-height: 1.8;
+  display: block;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transform: translateY(8px);
+}
+#p1-body .body-line.in { opacity: 0.8; transform: translateY(0); }
+
+/* Phase 2 (18-32%) */
+#p2-science { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(44px, 6vw, 72px); font-weight: 700; font-style: italic; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40); text-align: center; width: 100%; top: 20%; left: 0; }
+#p2-applied { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(44px, 6vw, 72px); font-weight: 700; font-style: italic; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40); text-align: center; width: 100%; top: 32%; left: 0; }
+#p2-intention { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(44px, 6vw, 72px); font-weight: 700; font-style: italic; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40); text-align: center; width: 100%; top: 44%; left: 0; }
+#p2-tagline { font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.35em; color: var(--cream); text-shadow: 0 1px 10px rgba(0,0,0,0.75); text-align: center; width: 100%; top: 62%; left: 0; }
+
+/* Phase 3 (32-48%) */
+#p3-not-procedure { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(28px, 4vw, 46px); font-weight: 700; font-style: italic; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40); right: 6%; top: 18%; text-align: right; transform: translateX(60px); }
+#p3-not-procedure.visible { transform: translateX(0); }
+#p3-return { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(28px, 4vw, 46px); font-weight: 700; font-style: italic; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40); right: 6%; top: 30%; text-align: right; transform: translateX(60px); }
+#p3-return.visible { transform: translateX(0); }
+#p3-lines { left: 6%; top: 50%; transform: translateY(-50%); }
+.p3-item { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; opacity: 0; transform: translateX(-20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.p3-item.in { opacity: 1; transform: translateX(0); }
+.p3-item-bar { width: 24px; height: 1px; background: var(--gold-light); flex-shrink: 0; }
+.p3-item-text { font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.3em; color: var(--cream); text-shadow: 0 1px 10px rgba(0,0,0,0.75); }
+
+/* Phase 4 (48-65%) */
+#p4-line1 { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(42px, 6.5vw, 76px); font-weight: 700; font-style: italic; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40); text-align: center; width: 100%; top: 22%; left: 0; }
+#p4-line2 { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(42px, 6.5vw, 76px); font-weight: 700; font-style: italic; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40); text-align: center; width: 100%; top: 40%; left: 0; }
+
+/* Phase 5 (65-80%) */
+#p5-hiding { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(28px, 4vw, 48px); font-weight: 700; font-style: italic; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40); left: 6%; top: 20%; }
+#p5-arriving { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(28px, 4vw, 48px); font-weight: 700; font-style: italic; color: var(--cream); text-shadow: 0 2px 12px rgba(0,0,0,0.70), 0 4px 48px rgba(0,0,0,0.40); left: 6%; top: 34%; }
+#p5-body { right: 6%; top: 20%; width: 280px; text-align: right; }
+#p5-body .body-line { font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; color: var(--cream); text-shadow: 0 1px 8px rgba(0,0,0,0.6); opacity: 0; line-height: 1.8; display: block; transition: opacity 0.6s ease, transform 0.6s ease; transform: translateY(8px); }
+#p5-body .body-line.in { opacity: 0.75; transform: translateY(0); }
+#p5-cta {
+  pointer-events: auto;
+  right: 6%; top: 60%;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--gold-light);
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--gold);
+  padding: 18px 52px;
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.3s, opacity 0.8s ease;
+}
+#p5-cta:hover { background: rgba(184,147,90,0.25); }
+
+/* Phase 6 (80-100%) */
+#p6-cta-center {
+  pointer-events: auto;
+  left: 50%; top: 55%;
+  transform: translate(-50%, -50%);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--gold-light);
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--gold);
+  padding: 18px 52px;
+  border-radius: 0;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: background 0.3s, opacity 0.8s ease;
+}
+#p6-cta-center:hover { background: rgba(184,147,90,0.25); }
+
+/* gold line pulse — on INNER child only so JS can kill outer opacity cleanly */
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.p0-line-inner { animation: pulse-opacity 2.5s ease-in-out infinite; }
+
+/* CTA pulse */
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184,147,90,0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(184,147,90,0); }
+}
+.pulse-anim { animation: pulse-border 2.5s ease-in-out infinite; }
+
+/* ── BELOW THE FOLD ── */
+.section-bridge {
+  background: var(--beige);
+  padding: 100px 0;
+  text-align: center;
+}
+.section-bridge p {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(22px, 3vw, 36px);
+  color: var(--gold);
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── TREATMENTS ── */
+.section-treatments {
+  background: var(--beige-deep);
+  padding: 120px 0;
+}
+.section-treatments .inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+.eyebrow {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 16px;
+}
+.section-headline {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(32px, 4.5vw, 56px);
+  color: var(--espresso);
+  text-align: center;
+  margin-bottom: 72px;
+}
+.treatment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+}
+@media (max-width: 768px) {
+  .treatment-grid { grid-template-columns: 1fr; }
+}
+.card-img-wrap {
+  position: relative;
+  width: calc(100% + 80px);   /* bleed past card's 40px padding on each side */
+  margin-left: -40px;
+  margin-top: -48px;
+  margin-bottom: 32px;
+  height: 220px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.card-img-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 50%, var(--cream) 100%);
+  pointer-events: none;
+}
+.treatment-card {
+  background: var(--cream);
+  border-top: 2px solid var(--gold);
+  border: 1px solid var(--gold-pale);
+  border-top: 2px solid var(--gold);
+  padding: 48px 40px;
+  border-radius: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              border-top-color 0.4s ease;
+  cursor: default;
+}
+.treatment-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 48px rgba(44,36,32,0.08);
+  border-top-color: var(--gold-light);
+}
+.treatment-card .card-badge {
+  position: absolute;
+  top: 20px; right: 20px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  background: var(--gold-pale);
+  padding: 4px 10px;
+}
+.treatment-card .card-number {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(36px, 4.5vw, 52px);
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.treatment-card .card-number.dark { color: var(--espresso); }
+.treatment-card .card-category {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--taupe);
+  margin-bottom: 16px;
+}
+.treatment-card .card-items {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--taupe);
+  line-height: 1.8;
+  margin-bottom: 32px;
+}
+.treatment-card .card-link {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  text-decoration: none;
+  transition: letter-spacing 0.3s ease;
+}
+.treatment-card:hover .card-link { letter-spacing: 0.22em; }
+
+/* ── DOCTOR SECTION ── */
+.section-doctor {
+  background: var(--espresso);
+  padding: 120px 0;
+}
+.section-doctor .inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  gap: 0;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .section-doctor .inner { grid-template-columns: 1fr; }
+}
+.doctor-portrait-wrap {
+  width: 480px;
+  max-width: 100%;
+  height: 600px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.doctor-portrait-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, var(--espresso-mid) 0%, #4a3a30 60%, var(--espresso) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: sepia(8%) contrast(1.02);
+}
+.doctor-portrait-placeholder svg {
+  width: 160px;
+  height: 160px;
+  opacity: 0.15;
+}
+.doctor-content {
+  padding-left: 80px;
+}
+@media (max-width: 900px) {
+  .doctor-content { padding-left: 0; padding-top: 60px; }
+}
+.doctor-eyebrow {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+.doctor-quote {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(28px, 3.5vw, 44px);
+  color: var(--cream);
+  line-height: 1.4;
+}
+.doctor-name {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 40px;
+}
+.doctor-creds {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--sand);
+  line-height: 1.8;
+  margin-top: 8px;
+}
+.doctor-cta {
+  display: inline-block;
+  margin-top: 48px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--cream);
+  border: 1px solid rgba(212,170,120,0.4);
+  padding: 14px 40px;
+  border-radius: 0;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+.doctor-cta:hover { background: rgba(184,147,90,0.15); }
+
+/* ── CLIENT STORIES ── */
+.section-stories {
+  background: var(--beige);
+  padding: 120px 0;
+  overflow: hidden;
+}
+.section-stories .inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+.stories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 72px;
+}
+@media (max-width: 900px) {
+  .stories-grid {
+    grid-template-columns: 1fr;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .stories-grid .story-card { scroll-snap-align: start; }
+}
+.story-card {
+  background: var(--cream);
+  border: 1px solid var(--gold-pale);
+  padding: 48px;
+  text-align: center;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  cursor: default;
+}
+.story-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(44,36,32,0.07);
+}
+.story-avatar {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 2px solid var(--gold-pale);
+  background: var(--beige-deep);
+  margin: 0 auto 24px;
+  overflow: hidden;
+}
+.story-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+.story-treatment {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.story-quote {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 20px;
+  color: var(--espresso);
+  line-height: 1.5;
+}
+
+/* ── THE EXPERIENCE ── */
+.section-experience {
+  background: var(--beige-deep);
+  padding: 120px 0;
+  overflow: hidden;
+}
+.section-experience .inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+.experience-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-top: 72px;
+}
+@media (max-width: 900px) {
+  .experience-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .experience-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.experience-card {
+  background: var(--cream);
+  border-top: 2px solid var(--gold);
+  padding: 40px;
+}
+.experience-card .exp-number {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--sand);
+  letter-spacing: 0.2em;
+  margin-bottom: 20px;
+}
+.experience-card .exp-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--espresso);
+  margin-bottom: 16px;
+}
+.experience-card .exp-body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 15px;
+  color: var(--taupe);
+  line-height: 1.8;
+}
+
+/* ── CONSULTATION CTA ── */
+.section-consult {
+  background: var(--espresso-mid);
+  padding: 160px 0;
+  background-image:
+    linear-gradient(
+      rgba(44,36,32,0.62) 0%,
+      rgba(44,36,32,0.44) 30%,
+      rgba(44,36,32,0.44) 70%,
+      rgba(44,36,32,0.64) 100%),
+    url('./newsletter-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  text-align: center;
+}
+.section-consult .inner {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.section-consult .eyebrow { color: var(--gold-light); }
+.section-consult .consult-headline {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(32px, 4.5vw, 54px);
+  color: var(--cream);
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+.section-consult .consult-sub {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  color: rgba(245,240,232,0.72);
+  margin-bottom: 48px;
+}
+.consult-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+.consult-input {
+  width: 300px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(184,147,90,0.55);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--cream);
+  padding: 10px 0;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+.consult-input::placeholder { color: rgba(245,240,232,0.38); }
+.consult-input:focus { border-bottom-color: var(--gold-light); }
+.consult-submit {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: letter-spacing 0.3s ease;
+}
+.consult-submit:hover { letter-spacing: 0.28em; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--espresso);
+  padding: 64px 0;
+  border-top: 1px solid rgba(184,147,90,0.2);
+}
+footer .inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  footer .inner { grid-template-columns: 1fr; text-align: center; }
+}
+.footer-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.footer-copy {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--sand);
+}
+.footer-nav {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--sand);
+  text-align: center;
+}
+.footer-social {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  color: var(--sand);
+  text-align: right;
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+}
+.footer-social a {
+  color: var(--sand);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.footer-social a:hover { color: var(--gold); }
+
+/* ── FLOATING WHATSAPP ── */
+#whatsapp-btn {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  z-index: 300;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(184,147,90,0.4);
+  transition: transform 0.3s;
+}
+#whatsapp-btn:hover { transform: scale(1.08); }
+
+/* ── FLOW DROP ── */
+#flow-drop {
+  position: fixed;
+  z-index: 150;
+  width: 22px;
+  height: 32px;
+  pointer-events: none;
+  opacity: 0;
+  /* transition controlled via JS for asymmetric in/out speeds */
+}
+.drop-trail {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  bottom: 22px;
+  height: 28px;
+  border-radius: 1px;
+  background: linear-gradient(to top,
+    rgba(184,147,90,0.55) 0%,
+    rgba(212,170,120,0.18) 65%,
+    transparent 100%
+  );
+}
+.drop-body {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 38% 32%,
+    rgba(255, 248, 215, 0.98) 0%,
+    rgba(220, 176, 100, 0.94) 38%,
+    rgba(184, 147, 90, 0.90) 68%,
+    rgba(140, 108, 55, 0.85) 100%
+  );
+  box-shadow:
+    0 0 8px 3px rgba(212,170,120,0.75),
+    0 0 20px 8px rgba(184,147,90,0.45),
+    0 0 42px 14px rgba(184,147,90,0.22);
+}
+@keyframes drop-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px 3px rgba(212,170,120,0.75), 0 0 20px 8px rgba(184,147,90,0.45), 0 0 42px 14px rgba(184,147,90,0.22);
+  }
+  50% {
+    box-shadow: 0 0 14px 5px rgba(220,182,120,0.88), 0 0 30px 12px rgba(184,147,90,0.55), 0 0 58px 20px rgba(184,147,90,0.30);
+  }
+}
+.drop-body { animation: drop-glow-pulse 2.8s ease-in-out infinite; }
+
+/* scroll animation helpers */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.fade-up.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── HAMBURGER BUTTON ── */
+#mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 210;
+}
+#mobile-menu-btn span {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--gold);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  transform-origin: center;
+}
+#mobile-menu-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+#mobile-menu-btn.open span:nth-child(2) { opacity: 0; }
+#mobile-menu-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* ── MOBILE DRAWER ── */
+#mobile-drawer {
+  position: fixed;
+  top: 72px; left: 0; right: 0;
+  background: rgba(245,240,232,0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--gold-pale);
+  z-index: 190;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+#mobile-drawer.open { max-height: 360px; }
+#mobile-drawer nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 24px 40px;
+  gap: 28px;
+}
+#mobile-drawer nav a {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--taupe);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+#mobile-drawer nav a:hover { color: var(--gold); }
+#mobile-drawer .drawer-book {
+  color: var(--gold) !important;
+  border: 1px solid var(--gold-pale);
+  padding: 12px 36px;
+  margin-top: 8px;
+  transition: background 0.3s, color 0.3s !important;
+}
+#mobile-drawer .drawer-book:hover { background: var(--gold-pale); }
+
+/* ════════════════════════════════════════
+   RESPONSIVE — 768px (tablet + mobile)
+   ════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* Header */
+  #site-header { padding: 0 20px; }
+  .header-nav, .header-book { display: none; }
+  #mobile-menu-btn { display: flex; }
+
+  /* Overlay text — centralize positioned elements */
+  #p1-headline { left: 5%; right: 5%; width: 90%; text-align: center; }
+  #p1-body { display: none; }
+
+  #p3-not-procedure {
+    right: auto; left: 5%; width: 90%;
+    text-align: center; font-size: clamp(22px, 5.5vw, 36px);
+  }
+  #p3-return {
+    right: auto; left: 5%; width: 90%;
+    text-align: center; font-size: clamp(22px, 5.5vw, 36px);
+  }
+  #p3-lines { display: none; }
+
+  #p5-hiding { left: 5%; right: 5%; width: 90%; text-align: center; font-size: clamp(22px, 5.5vw, 36px); }
+  #p5-arriving { left: 5%; right: 5%; width: 90%; text-align: center; font-size: clamp(22px, 5.5vw, 36px); top: 38%; }
+  #p5-body { display: none; }
+  #p5-cta { right: auto; left: 50%; transform: translateX(-50%); top: 62%; padding: 14px 32px; white-space: nowrap; }
+
+  /* Bridge */
+  .section-bridge { padding: 64px 0; }
+
+  /* Treatments */
+  .section-treatments { padding: 80px 0; }
+  .section-treatments .inner { padding: 0 20px; }
+  .section-headline { margin-bottom: 40px; }
+  .treatment-card { padding: 32px 24px; }
+  .card-img-wrap {
+    width: calc(100% + 48px);
+    margin-left: -24px;
+    margin-top: -32px;
+    height: 180px;
+  }
+
+  /* Doctor */
+  .section-doctor { padding: 80px 0; }
+  .section-doctor .inner {
+    grid-template-columns: 1fr;
+    padding: 0 20px;
+  }
+  .doctor-portrait-wrap { width: 100%; height: 380px; }
+  .doctor-content { padding-left: 0; padding-top: 48px; }
+  .doctor-cta { padding: 12px 28px; }
+
+  /* Stories */
+  .section-stories { padding: 80px 0; }
+  .section-stories .inner { padding: 0 20px; }
+  .stories-grid {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 16px;
+    margin-top: 48px;
+    padding-bottom: 16px;
+  }
+  .story-card {
+    scroll-snap-align: start;
+    min-width: 76vw;
+    flex-shrink: 0;
+    padding: 32px 24px;
+  }
+  .story-avatar { width: 160px; height: 160px; }
+
+  /* Experience */
+  .section-experience { padding: 80px 0; }
+  .section-experience .inner { padding: 0 20px; }
+  .experience-grid { grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 40px; }
+  .experience-card { padding: 28px 20px; }
+
+  /* Consult */
+  .section-consult { padding: 100px 0; background-attachment: scroll; }
+  .consult-input { width: 100%; max-width: 280px; }
+
+  /* Footer */
+  footer { padding: 48px 0; }
+  footer .inner { padding: 0 24px; gap: 32px; }
+  .footer-social { justify-content: center; }
+
+  /* WhatsApp */
+  #whatsapp-btn { width: 48px; height: 48px; bottom: 20px; right: 20px; }
+
+  /* Hide flow drop on mobile — too small to add value */
+  #flow-drop { display: none; }
+
+  /* Scroll progress — thicker for touch */
+  #scroll-progress, #scroll-progress-fill { width: 2px; }
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE — 480px (small phones)
+   ════════════════════════════════════════ */
+@media (max-width: 480px) {
+  #p0-headline { font-size: clamp(28px, 8vw, 42px); }
+  #p2-science, #p2-applied, #p2-intention { font-size: clamp(34px, 9vw, 52px); }
+  #p2-tagline { font-size: 10px; letter-spacing: 0.18em; }
+  #p4-line1, #p4-line2 { font-size: clamp(32px, 9vw, 54px); }
+
+  .section-bridge { padding: 48px 0; }
+  .experience-grid { grid-template-columns: 1fr; }
+  .story-card { min-width: 88vw; }
+  .doctor-portrait-wrap { height: 300px; }
+  .section-treatments .inner,
+  .section-stories .inner,
+  .section-experience .inner,
+  footer .inner { padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="l-title">LUMIS</div>
+  <div class="l-sub">Aesthetic Clinic</div>
+  <div class="l-bar-wrap"><div class="l-bar-fill" id="l-bar-fill"></div></div>
+  <div class="l-note">Preparing your experience…</div>
+</div>
+
+<!-- FIXED HEADER -->
+<header id="site-header">
+  <a class="header-logo" href="#">LUMIS</a>
+  <nav>
+    <ul class="header-nav">
+      <li><a href="#treatments">Treatments</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+  <a class="header-book" href="#contact">Book Now</a>
+  <button id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- MOBILE DRAWER -->
+<div id="mobile-drawer" role="navigation" aria-label="Mobile menu">
+  <nav>
+    <a href="#treatments" class="drawer-link">Treatments</a>
+    <a href="#about"      class="drawer-link">About</a>
+    <a href="#contact"    class="drawer-link">Contact</a>
+    <a href="#contact"    class="drawer-book">Book Now</a>
+  </nav>
+</div>
+
+<!-- SCROLL PROGRESS BAR -->
+<div id="scroll-progress"><div id="scroll-progress-fill"></div></div>
+
+<!-- VIDEO SCROLL SECTION -->
+<section id="video-section">
+  <div id="video-canvas-wrap">
+    <canvas id="video-canvas"></canvas>
+
+    <!-- OVERLAY CONTAINER -->
+    <div class="overlay" id="text-overlay">
+
+      <!-- Phase 0: 0-12% -->
+      <div class="overlay-text" id="p0-headline">You have always been this beautiful.</div>
+      <div class="overlay-text" id="p0-sub">Lumis Aesthetic Clinic</div>
+      <div class="overlay-text" id="p0-line"><span class="p0-line-inner"></span></div>
+
+      <!-- Phase 1: 5-18% -->
+      <div class="overlay-text" id="p1-headline">
+        <span class="word">Every</span><span class="word">face</span><span class="word">tells</span><span class="word">a</span><span class="word">story.</span>
+      </div>
+      <div class="overlay-text" id="p1-body">
+        <span class="body-line">At Lumis, we don't rewrite yours.</span>
+        <span class="body-line">We restore the chapter that time has quietly dimmed.</span>
+        <span class="body-line">The luminosity you remember.</span>
+        <span class="body-line">The definition that was always there.</span>
+      </div>
+
+      <!-- Phase 2: 18-32% -->
+      <div class="overlay-text" id="p2-science">Science,</div>
+      <div class="overlay-text" id="p2-applied">applied with</div>
+      <div class="overlay-text" id="p2-intention">intention.</div>
+      <div class="overlay-text" id="p2-tagline">Clinically Proven · Individually Prescribed · Results That Last</div>
+
+      <!-- Phase 3: 32-48% -->
+      <div class="overlay-text" id="p3-not-procedure">This is not a procedure.</div>
+      <div class="overlay-text" id="p3-return">This is a return.</div>
+      <div class="overlay-text" id="p3-lines">
+        <div class="p3-item" id="p3-i1"><div class="p3-item-bar"></div><div class="p3-item-text">Restore Your Glow</div></div>
+        <div class="p3-item" id="p3-i2"><div class="p3-item-bar"></div><div class="p3-item-text">Refine Your Contours</div></div>
+        <div class="p3-item" id="p3-i3"><div class="p3-item-bar"></div><div class="p3-item-text">Reclaim Your Confidence</div></div>
+      </div>
+
+      <!-- Phase 4: 48-65% (peak) -->
+      <div class="overlay-text" id="p4-line1">What your skin has always</div>
+      <div class="overlay-text" id="p4-line2">been capable of.</div>
+
+      <!-- Phase 5: 65-80% -->
+      <div class="overlay-text" id="p5-hiding">The moment you stop hiding</div>
+      <div class="overlay-text" id="p5-arriving">and start arriving.</div>
+      <div class="overlay-text" id="p5-body">
+        <span class="body-line">One consultation.</span>
+        <span class="body-line">A treatment plan made entirely for you.</span>
+        <span class="body-line">Results you will see, and feel.</span>
+      </div>
+      <a class="overlay-text" id="p5-cta" href="#contact">Begin Your Consultation →</a>
+
+      <!-- Phase 6: 80-100% -->
+      <a class="overlay-text" id="p6-cta-center" href="#contact">Begin Your Consultation →</a>
+
+    </div>
+  </div>
+</section>
+
+<!-- BRIDGE -->
+<section class="section-bridge">
+  <p class="fade-up">"Whatever brings you here, we know where we're taking you."</p>
+</section>
+
+<!-- TREATMENTS -->
+<section class="section-treatments" id="treatments">
+  <div class="inner">
+    <div class="eyebrow fade-up">Our Treatments</div>
+    <h2 class="section-headline fade-up">Choose your transformation.</h2>
+    <div class="treatment-grid">
+      <div class="treatment-card fade-up">
+        <div class="card-img-wrap">
+          <img src="./restore-treatment.png" alt="Restore — Skin Health &amp; Radiance" />
+        </div>
+        <div class="card-number">RESTORE</div>
+        <div class="card-category">Skin Health &amp; Radiance</div>
+        <div class="card-items">Hydrafacial · PRP · Chemical Peels · Skin Boosters</div>
+        <a class="card-link" href="#">Explore →</a>
+      </div>
+      <div class="treatment-card fade-up">
+        <div class="card-badge">Most Popular</div>
+        <div class="card-img-wrap">
+          <img src="./refine-treatment.png" alt="Refine — Lines, Texture &amp; Tightening" />
+        </div>
+        <div class="card-number">REFINE</div>
+        <div class="card-category">Lines, Texture &amp; Tightening</div>
+        <div class="card-items">Botox · Profhilo · Laser Resurfacing · Skin Tightening</div>
+        <a class="card-link" href="#">Explore →</a>
+      </div>
+      <div class="treatment-card fade-up">
+        <div class="card-img-wrap">
+          <img src="./sculpt-treatment.png" alt="Sculpt — Contour, Define &amp; Lift" />
+        </div>
+        <div class="card-number dark">SCULPT</div>
+        <div class="card-category">Contour, Define &amp; Lift</div>
+        <div class="card-items">Fillers · Thread Lifts · Jaw Definition · Chin Augmentation</div>
+        <a class="card-link" href="#">Explore →</a>
+      </div>
+      <div class="treatment-card fade-up">
+        <div class="card-img-wrap">
+          <img src="./renew-treatment.png" alt="Renew — Pigmentation, Scars &amp; Reset" />
+        </div>
+        <div class="card-number">RENEW</div>
+        <div class="card-category">Pigmentation, Scars &amp; Reset</div>
+        <div class="card-items">Laser · Microneedling · Carbon Peel · Spot Correction</div>
+        <a class="card-link" href="#">Explore →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOCTOR -->
+<section class="section-doctor" id="about">
+  <div class="inner">
+    <div class="doctor-portrait-wrap">
+      <img src="./Dr. Sophia Reeves.png" alt="Dr. Sophia Reeves" style="width:100%;height:100%;object-fit:cover;object-position:top center;display:block;filter:sepia(8%) contrast(1.02);" />
+    </div>
+    <div class="doctor-content fade-up">
+      <div class="doctor-eyebrow">The Clinic</div>
+      <div class="doctor-quote">
+        "I don't change faces."<br />"I reveal them."
+      </div>
+      <div class="doctor-name">Dr. Sophia Reeves</div>
+      <div class="doctor-creds">
+        MBBS · Aesthetic Medicine Specialist<br />
+        Fellow, Royal College of Aesthetic Practitioners<br />
+        15 years of clinical excellence
+      </div>
+      <a class="doctor-cta" href="#contact">Book A Consultation →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CLIENT STORIES -->
+<section class="section-stories">
+  <div class="inner">
+    <div class="eyebrow fade-up">Stories of Return</div>
+    <h2 class="section-headline fade-up">Real results. Real people.</h2>
+    <div class="stories-grid">
+      <div class="story-card fade-up">
+        <div class="story-avatar">
+          <img src="./Skin Restoration.png" alt="Skin Restoration client" />
+        </div>
+        <div class="story-treatment">Skin Restoration</div>
+        <div class="story-quote">"I stopped avoiding mirrors."</div>
+      </div>
+      <div class="story-card fade-up">
+        <div class="story-avatar">
+          <img src="./Facial Refinement.png" alt="Facial Refinement client" />
+        </div>
+        <div class="story-treatment">Facial Refinement</div>
+        <div class="story-quote">"For the first time in years, I recognised myself."</div>
+      </div>
+      <div class="story-card fade-up">
+        <div class="story-avatar">
+          <img src="./Sculpt & Define .png" alt="Sculpt &amp; Define client" />
+        </div>
+        <div class="story-treatment">Sculpt &amp; Define</div>
+        <div class="story-quote">"She gave me back what I thought I had lost."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- THE EXPERIENCE -->
+<section class="section-experience">
+  <div class="inner">
+    <div class="eyebrow fade-up">What to Expect</div>
+    <h2 class="section-headline fade-up">Every visit is a ritual.</h2>
+    <div class="experience-grid">
+      <div class="experience-card fade-up">
+        <div class="exp-number">01</div>
+        <div class="exp-title">Before</div>
+        <div class="exp-body">Your consultation begins with listening. We take the time to understand not just your skin, but your story.</div>
+      </div>
+      <div class="experience-card fade-up">
+        <div class="exp-number">02</div>
+        <div class="exp-title">Your Treatment</div>
+        <div class="exp-body">A clinical environment designed for calm. Every detail considered, every comfort attended to.</div>
+      </div>
+      <div class="experience-card fade-up">
+        <div class="exp-number">03</div>
+        <div class="exp-title">Aftercare</div>
+        <div class="exp-body">We stay with you through every stage of your results. Your journey doesn't end when you leave our door.</div>
+      </div>
+      <div class="experience-card fade-up">
+        <div class="exp-number">04</div>
+        <div class="exp-title">Your Results</div>
+        <div class="exp-body">Change you will see. Confidence you will feel. Results that are entirely, unmistakably yours.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONSULTATION CTA -->
+<section class="section-consult" id="contact">
+  <div class="inner">
+    <div class="eyebrow fade-up">Begin Your Journey</div>
+    <h2 class="consult-headline fade-up">Your skin. Your story. Your time.</h2>
+    <p class="consult-sub fade-up">A private consultation. Entirely on your terms.</p>
+    <form class="consult-form fade-up" onsubmit="return false;">
+      <input class="consult-input" type="email" placeholder="Your email address" />
+      <button class="consult-submit" type="submit">Reach Out →</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="inner">
+    <div>
+      <div class="footer-logo">LUMIS</div>
+      <div class="footer-copy">© 2026 Lumis Clinic. Where skin meets science.</div>
+    </div>
+    <div class="footer-nav">RESTORE · REFINE · SCULPT · RENEW</div>
+    <div class="footer-social">
+      <a href="#">Instagram</a>
+      <a href="https://wa.me/YOUR-NUMBER">WhatsApp</a>
+    </div>
+  </div>
+</footer>
+
+<!-- FLOATING WHATSAPP -->
+<a id="whatsapp-btn" href="https://wa.me/YOUR-NUMBER" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.334.101 11.893c0 2.096.549 4.14 1.595 5.945L0 24l6.335-1.652c1.746.943 3.71 1.444 5.71 1.445h.006c6.585 0 11.946-5.336 11.949-11.896.002-3.176-1.24-6.165-3.48-8.448zM12.045 21.785h-.005c-1.774-.001-3.513-.474-5.031-1.37l-.361-.214-3.741.975.999-3.648-.235-.374c-.99-1.566-1.511-3.374-1.51-5.221.003-5.407 4.415-9.805 9.843-9.805 2.627.001 5.099 1.018 6.959 2.868 1.86 1.851 2.882 4.311 2.881 6.928-.003 5.407-4.414 9.861-9.8 9.861zm5.39-7.362c-.295-.147-1.75-.861-2.021-.959-.271-.097-.469-.147-.666.148-.197.295-.762.959-.935 1.155-.172.196-.345.221-.639.074-.295-.148-1.243-.456-2.368-1.451-.875-.775-1.465-1.731-1.637-2.025-.172-.295-.018-.453.129-.6.133-.132.295-.344.443-.516.148-.172.197-.295.295-.492.099-.197.05-.369-.025-.517-.074-.147-.666-1.598-.913-2.188-.24-.575-.484-.497-.666-.506-.172-.009-.369-.011-.566-.011-.197 0-.517.074-.787.369-.271.295-1.035 1.009-1.035 2.46s1.059 2.853 1.207 3.05c.147.196 2.084 3.17 5.049 4.448.706.304 1.256.486 1.686.623.708.226 1.352.194 1.862.118.568-.085 1.749-.713 1.996-1.402.247-.689.247-1.279.172-1.402-.074-.123-.271-.197-.566-.344z"/>
+  </svg>
+</a>
+
+<!-- FLOW DROP -->
+<div id="flow-drop" aria-hidden="true">
+  <div class="drop-trail"></div>
+  <div class="drop-body"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const loadingScreen = document.getElementById('loading-screen');
+  const barFill = document.getElementById('l-bar-fill');
+  const canvas = document.getElementById('video-canvas');
+  const ctx = canvas.getContext('2d');
+  const progressFill = document.getElementById('scroll-progress-fill');
+  const flowDrop = document.getElementById('flow-drop');
+  const flowDropTrail = flowDrop.querySelector('.drop-trail');
+  let dropVisible = false;
+  let scrollIdleTimer = null;
+
+  // ── CANVAS SIZE ──
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  // ── VIDEO FRAME EXTRACTION ──
+  const video = document.createElement('video');
+  video.src = './lumis-story-final.mp4';
+  video.playsInline = true;
+  video.muted = true;
+  video.preload = 'auto';
+
+  let frames = [];
+  let totalFrames = 0;
+  let extractionDone = false;
+  let lastDrawnFrame = -1;
+
+  function drawBlankFrame() {
+    ctx.fillStyle = '#F5F0E8';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  drawBlankFrame();
+
+  function extractFrames() {
+    return new Promise((resolve) => {
+      video.addEventListener('loadedmetadata', () => {
+        const duration = video.duration;
+        const fps = 24;
+        totalFrames = Math.floor(duration * fps);
+        if (totalFrames < 2) totalFrames = 60;
+        let frameIndex = 0;
+
+        function seekNext() {
+          if (frameIndex >= totalFrames) {
+            resolve();
+            return;
+          }
+          video.currentTime = (frameIndex / totalFrames) * duration;
+        }
+
+        video.addEventListener('seeked', function onSeeked() {
+          const offscreen = document.createElement('canvas');
+          offscreen.width = canvas.width || window.innerWidth;
+          offscreen.height = canvas.height || window.innerHeight;
+          const offCtx = offscreen.getContext('2d');
+          offCtx.drawImage(video, 0, 0, offscreen.width, offscreen.height);
+          frames.push(offscreen);
+
+          const pct = Math.round(((frameIndex + 1) / totalFrames) * 100);
+          barFill.style.width = pct + '%';
+
+          frameIndex++;
+          if (frameIndex >= totalFrames) {
+            video.removeEventListener('seeked', onSeeked);
+            resolve();
+          } else {
+            seekNext();
+          }
+        });
+
+        seekNext();
+      });
+
+      video.addEventListener('error', () => {
+        // Video not found — use beige fallback
+        totalFrames = 100;
+        for (let i = 0; i < totalFrames; i++) {
+          const offscreen = document.createElement('canvas');
+          offscreen.width = window.innerWidth;
+          offscreen.height = window.innerHeight;
+          const offCtx = offscreen.getContext('2d');
+          // gradient placeholder
+          const grad = offCtx.createLinearGradient(0, 0, offscreen.width, offscreen.height);
+          const t = i / totalFrames;
+          const c1 = `hsl(${30 + t * 10}, ${20 + t * 5}%, ${88 - t * 5}%)`;
+          const c2 = `hsl(${20 + t * 8}, ${15 + t * 8}%, ${82 - t * 8}%)`;
+          grad.addColorStop(0, c1);
+          grad.addColorStop(1, c2);
+          offCtx.fillStyle = grad;
+          offCtx.fillRect(0, 0, offscreen.width, offscreen.height);
+          frames.push(offscreen);
+        }
+        barFill.style.width = '100%';
+        resolve();
+      });
+
+      video.load();
+    });
+  }
+
+  function drawFrame(index) {
+    const i = Math.max(0, Math.min(index, frames.length - 1));
+    if (i === lastDrawnFrame) return;
+    lastDrawnFrame = i;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(frames[i], 0, 0, canvas.width, canvas.height);
+  }
+
+  // ── OVERLAY CONTROL ──
+  const p0Headline = document.getElementById('p0-headline');
+  const p0Sub = document.getElementById('p0-sub');
+  const p0Line = document.getElementById('p0-line');
+  const p1Headline = document.getElementById('p1-headline');
+  const p1Words = p1Headline.querySelectorAll('.word');
+  const p1Body = document.getElementById('p1-body');
+  const p1Lines = p1Body.querySelectorAll('.body-line');
+  const p2Science = document.getElementById('p2-science');
+  const p2Applied = document.getElementById('p2-applied');
+  const p2Intention = document.getElementById('p2-intention');
+  const p2Tagline = document.getElementById('p2-tagline');
+  const p3NotProc = document.getElementById('p3-not-procedure');
+  const p3Return = document.getElementById('p3-return');
+  const p3Lines = document.getElementById('p3-lines');
+  const p3Items = document.querySelectorAll('.p3-item');
+  const p4Line1 = document.getElementById('p4-line1');
+  const p4Line2 = document.getElementById('p4-line2');
+  const p5Hiding = document.getElementById('p5-hiding');
+  const p5Arriving = document.getElementById('p5-arriving');
+  const p5Body = document.getElementById('p5-body');
+  const p5BodyLines = p5Body.querySelectorAll('.body-line');
+  const p5Cta = document.getElementById('p5-cta');
+  const p6Cta = document.getElementById('p6-cta-center');
+
+  function setOp(el, v) {
+    el.style.opacity = v;
+  }
+  function show(el) { el.classList.add('visible'); }
+  function hide(el) { el.classList.remove('visible'); }
+
+  function lerp(a, b, t) { return a + (b - a) * Math.max(0, Math.min(1, t)); }
+  function rangeOpacity(p, start, end) {
+    if (p < start) return 0;
+    if (p > end) return 1;
+    return (p - start) / (end - start);
+  }
+  function fadeOut(p, start, end) {
+    if (p < start) return 1;
+    if (p > end) return 0;
+    return 1 - (p - start) / (end - start);
+  }
+  function windowOp(p, fadeIn0, fadeIn1, fadeOut0, fadeOut1) {
+    const inOp = rangeOpacity(p, fadeIn0, fadeIn1);
+    const outOp = fadeOut(p, fadeOut0, fadeOut1);
+    return Math.min(inOp, outOp);
+  }
+
+  let rafPending = false;
+
+  function updateOverlays(p) {
+    // Phase 0: snap exit by 7% so Phase 1 has clean air
+    const op0 = windowOp(p, 0, 0.01, 0.04, 0.07);
+    setOp(p0Headline, op0);
+    setOp(p0Sub, op0);
+    setOp(p0Line, op0);
+
+    // Phase 1: headline words build 8%→15%, hold, fade out 20%→24%
+    const wordCount = p1Words.length;
+    p1Words.forEach((w, i) => {
+      const triggerPct = 0.08 + (i / wordCount) * 0.07;
+      const op = windowOp(p, triggerPct, triggerPct + 0.025, 0.20, 0.24);
+      w.style.opacity = op;
+      w.style.transform = op > 0 ? 'translateY(0)' : 'translateY(12px)';
+    });
+
+    // body lines stagger 10%→17% — fade-out starts at 20%, ends 24% (no overlap)
+    p1Lines.forEach((l, i) => {
+      const trig = 0.10 + i * 0.02;
+      const op = windowOp(p, trig, trig + 0.025, 0.20, 0.24);
+      l.style.opacity = op * 0.95;
+      l.style.transform = op > 0 ? 'translateY(0)' : 'translateY(8px)';
+    });
+    setOp(p1Headline, Math.max(...Array.from(p1Words).map(w => parseFloat(w.style.opacity || 0))) > 0 ? 1 : 0);
+    setOp(p1Body, Math.max(...Array.from(p1Lines).map(l => parseFloat(l.style.opacity || 0))) > 0 ? 1 : 0);
+
+    // Phase 2: 24-38% — fadeIn ends BEFORE fadeOut begins, giving each a clear hold
+    const op2sci = windowOp(p, 0.24, 0.27, 0.34, 0.38);
+    const op2app = windowOp(p, 0.27, 0.30, 0.34, 0.38);
+    const op2int = windowOp(p, 0.30, 0.33, 0.34, 0.38); // hold is 0.33-0.34 = 1% breathing room
+    const op2tag = windowOp(p, 0.31, 0.34, 0.35, 0.39);
+    setOp(p2Science, op2sci);
+    setOp(p2Applied, op2app);
+    setOp(p2Intention, op2int);
+    setOp(p2Tagline, op2tag);
+
+    // Phase 3: 38-54% — left items staggered so item 3 has full hold before exit
+    const op3np = windowOp(p, 0.38, 0.41, 0.50, 0.54);
+    const op3r  = windowOp(p, 0.41, 0.44, 0.50, 0.54);
+    setOp(p3NotProc, op3np);
+    p3NotProc.style.transform = op3np > 0 ? 'translateX(0)' : 'translateX(60px)';
+    setOp(p3Return, op3r);
+    p3Return.style.transform = op3r > 0 ? 'translateX(0)' : 'translateX(60px)';
+
+    setOp(p3Lines, 1);
+    // items appear at 41%, 44%, 47% — fade-out starts at 50%, ends 54% — all have solid hold
+    const p3Triggers = [0.41, 0.44, 0.47];
+    p3Items.forEach((item, i) => {
+      const op = windowOp(p, p3Triggers[i], p3Triggers[i] + 0.025, 0.50, 0.54);
+      item.style.opacity = op;
+      item.style.transform = op > 0 ? 'translateX(0)' : 'translateX(-20px)';
+    });
+
+    // Phase 4: 54-68% (peak — adjusted to match phase 3 exit)
+    const op4l1 = windowOp(p, 0.54, 0.58, 0.65, 0.68);
+    const op4l2 = windowOp(p, 0.58, 0.62, 0.65, 0.68);
+    setOp(p4Line1, op4l1);
+    setOp(p4Line2, op4l2);
+
+    // Phase 5: 68-82%
+    const op5h = windowOp(p, 0.68, 0.71, 0.78, 0.82);
+    const op5a = windowOp(p, 0.71, 0.74, 0.78, 0.82);
+    setOp(p5Hiding, op5h);
+    setOp(p5Arriving, op5a);
+
+    // body lines stagger 72%→77%, fade-out 78%→82% — each line gets proper hold
+    p5BodyLines.forEach((l, i) => {
+      const trig = 0.72 + i * 0.02;
+      const op = windowOp(p, trig, trig + 0.025, 0.78, 0.82);
+      l.style.opacity = op * 0.95;
+      l.style.transform = op > 0 ? 'translateY(0)' : 'translateY(8px)';
+    });
+    setOp(p5Body, 1);
+
+    // p5-cta: fades in at 74%, exits cleanly at 80-83% — BEFORE p6 appears
+    const op5cta = windowOp(p, 0.74, 0.77, 0.80, 0.83);
+    setOp(p5Cta, op5cta);
+    p5Cta.style.pointerEvents = op5cta > 0.1 ? 'auto' : 'none';
+
+    // Phase 6: clean single button from 85%, pulsing at 95%
+    const op6 = windowOp(p, 0.85, 0.90, 0.97, 1.0);
+    setOp(p6Cta, op6);
+    p6Cta.style.pointerEvents = op6 > 0.1 ? 'auto' : 'none';
+    if (p >= 0.95) {
+      p6Cta.classList.add('pulse-anim');
+    } else {
+      p6Cta.classList.remove('pulse-anim');
+    }
+  }
+
+  // ── FLOW DROP (post-video scroll) ──
+  function updateFlowDrop() {
+    const videoSectionEl = document.getElementById('video-section');
+    // scroll position where the video sticky section fully exits the viewport
+    const videoEndScroll = videoSectionEl.offsetTop + videoSectionEl.offsetHeight - window.innerHeight;
+    const scrollY = window.scrollY;
+    const threshold = videoEndScroll + 60;
+
+    if (scrollY <= threshold) {
+      // Re-entered video section — cancel any pending idle timer and hide
+      if (scrollIdleTimer) { clearTimeout(scrollIdleTimer); scrollIdleTimer = null; }
+      if (dropVisible) {
+        flowDrop.style.transition = 'opacity 0.4s ease';
+        flowDrop.style.opacity = '0';
+        dropVisible = false;
+      }
+      return;
+    }
+
+    // Scrolling is active — snap in quickly
+    dropVisible = true;
+    flowDrop.style.transition = 'opacity 0.22s ease';
+    flowDrop.style.opacity = '1';
+
+    // Reset idle timer: after 420ms of no scroll, fade out gracefully
+    if (scrollIdleTimer) clearTimeout(scrollIdleTimer);
+    scrollIdleTimer = setTimeout(() => {
+      flowDrop.style.transition = 'opacity 0.75s ease';
+      flowDrop.style.opacity = '0';
+      scrollIdleTimer = null;
+    }, 420);
+
+    const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+    // progress 0→1 through the below-fold content
+    const contentProgress = Math.max(0, Math.min(1,
+      (scrollY - threshold) / Math.max(1, totalScroll - threshold)
+    ));
+
+    // X: 3 full sine oscillations across viewport width
+    const oscillations = 3;
+    const t = contentProgress * Math.PI * oscillations;
+    const xCenter = 50;
+    const xAmp = 34;
+    const x = xCenter + xAmp * Math.sin(t);
+
+    // Y: drop descends from 12% to 84% of viewport height as page scrolls
+    const y = 12 + contentProgress * 72;
+
+    // Tilt angle: direction of motion (arctan of horizontal/vertical velocity)
+    const dxPx = xAmp * oscillations * Math.PI * Math.cos(t) * window.innerWidth / 100;
+    const dyPx = 72 * window.innerHeight / 100;
+    const angle = Math.atan2(dxPx, dyPx) * (180 / Math.PI) * 0.38;
+
+    // Trail stretches with horizontal speed
+    const trailLen = 18 + Math.min(Math.abs(dxPx) / 700, 32);
+
+    flowDrop.style.left    = `calc(${x}vw - 11px)`;
+    flowDrop.style.top     = `calc(${y}vh - 22px)`;
+    flowDrop.style.transform = `rotate(${angle}deg)`;
+    flowDropTrail.style.height = trailLen + 'px';
+  }
+
+  function onScroll() {
+    if (rafPending) return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      const videoSection = document.getElementById('video-section');
+      const sectionTop = videoSection.offsetTop;
+      const sectionH = videoSection.offsetHeight;
+      const scrollY = window.scrollY;
+      const progress = Math.max(0, Math.min(1, (scrollY - sectionTop) / (sectionH - window.innerHeight)));
+
+      // Update scroll progress bar
+      const totalH = document.documentElement.scrollHeight - window.innerHeight;
+      const globalP = totalH > 0 ? scrollY / totalH : 0;
+      progressFill.style.height = (globalP * 100) + '%';
+
+      // Draw video frame
+      if (frames.length > 0) {
+        const frameIdx = Math.floor(progress * (frames.length - 1));
+        drawFrame(frameIdx);
+      }
+
+      // Update overlays
+      updateOverlays(progress);
+
+      // Update flowing drop
+      updateFlowDrop();
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // ── SCROLL ANIMATION (below-fold) ──
+  const fadeEls = document.querySelectorAll('.fade-up');
+  function checkFadeEls() {
+    fadeEls.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.88) {
+        el.classList.add('in');
+      }
+    });
+  }
+  window.addEventListener('scroll', checkFadeEls, { passive: true });
+  checkFadeEls();
+
+  // ── INIT ──
+  extractFrames().then(() => {
+    extractionDone = true;
+    // Fade out loading screen
+    gsap.to(loadingScreen, {
+      opacity: 0,
+      duration: 1.2,
+      ease: 'power2.inOut',
+      onComplete: () => {
+        loadingScreen.style.display = 'none';
+        onScroll();
+        checkFadeEls();
+        updateFlowDrop();
+      }
+    });
+    // Initial overlay state
+    updateOverlays(0);
+    if (frames.length > 0) drawFrame(0);
+  });
+
+  // ── MOBILE HAMBURGER MENU ──
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const mobileDrawer = document.getElementById('mobile-drawer');
+  if (mobileBtn && mobileDrawer) {
+    mobileBtn.addEventListener('click', () => {
+      const isOpen = mobileDrawer.classList.toggle('open');
+      mobileBtn.classList.toggle('open', isOpen);
+      mobileBtn.setAttribute('aria-expanded', String(isOpen));
+    });
+    mobileDrawer.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileDrawer.classList.remove('open');
+        mobileBtn.classList.remove('open');
+        mobileBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+})();
+</script>
+</body>
+</html>

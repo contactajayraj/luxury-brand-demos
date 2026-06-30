@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Winery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0608;
+  --bg-section:#FAF5EE;
+  --bg-alt:#F5EDE0;
+  --bg-dark:#1A0A04;
+  --gold:#C9A84C;
+  --gold-light:#E0C070;
+  --gold-pale:#E8D5A0;
+  --gold-dim:#8B6030;
+  --merlot:#6B1A2A;
+  --merlot-light:#8B2A3A;
+  --parchment:#F2EBD9;
+  --parch-dim:#A87B6E;
+  --espresso:#2A1008;
+  --taupe:#8C7B6B;
+  --sand:#C4B49A;
+}
+html{scroll-behavior:auto}
+body{
+  background:var(--bg);
+  color:var(--parchment);
+  font-family:"DM Sans",system-ui,sans-serif;
+  overflow-x:hidden;
+}
+
+/* ── LOADING SCREEN ── */
+#loading{
+  position:fixed;inset:0;
+  background:var(--bg);
+  z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0;
+  transition:opacity 1.4s ease;
+}
+#loading.fade-out{opacity:0;pointer-events:none}
+#loading-estate{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:56px;
+  color:var(--gold);letter-spacing:0.08em;line-height:1;
+}
+#loading-winery{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:13px;text-transform:uppercase;
+  color:#C49060;letter-spacing:0.5em;
+  margin-top:10px;
+}
+#loading-bar-wrap{
+  width:200px;height:1px;
+  background:rgba(201,168,76,0.2);
+  margin-top:32px;position:relative;overflow:hidden;
+}
+#loading-bar-fill{
+  position:absolute;left:0;top:0;bottom:0;
+  width:0%;background:var(--gold);
+  transition:width 0.1s linear;
+}
+#loading-text{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:11px;color:#A07040;
+  margin-top:20px;letter-spacing:0.05em;
+}
+
+/* ── HEADER ── */
+#header{
+  position:fixed;top:0;left:0;right:0;height:72px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;
+  background:rgba(13,6,8,0.38);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(201,168,76,0.18);
+  transition:background 0.8s ease;
+  z-index:200;
+}
+#header.cream{background:rgba(250,245,238,0.92)}
+#header-logo{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:18px;
+  color:var(--gold);letter-spacing:0.2em;text-decoration:none;
+}
+#header-nav{
+  display:flex;gap:36px;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:11px;text-transform:uppercase;letter-spacing:0.2em;
+  color:rgba(255,255,255,0.95);
+  transition:color 0.8s ease;
+}
+#header.cream #header-nav{color:#3A2A1A}
+#header-nav a{
+  color:inherit;text-decoration:none;opacity:1;
+  transition:opacity 0.3s;cursor:pointer;
+}
+#header-nav a:hover{opacity:0.75}
+#header-cta{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:11px;text-transform:uppercase;letter-spacing:0.15em;
+  color:var(--gold);border:1px solid rgba(201,168,76,0.4);
+  padding:10px 28px;border-radius:0;background:transparent;cursor:pointer;
+  transition:background 0.3s;text-decoration:none;white-space:nowrap;
+}
+#header-cta:hover{background:rgba(201,168,76,0.1)}
+@media(max-width:768px){#header-nav{display:none}#header{padding:0 24px}}
+
+/* ── SCROLL PROGRESS BAR ── */
+#scroll-progress{
+  position:fixed;right:0;top:0;bottom:0;width:2px;
+  background:rgba(201,168,76,0.08);z-index:100;
+}
+#scroll-progress-fill{
+  position:absolute;top:0;left:0;right:0;height:0%;
+  background:var(--gold);opacity:0.6;
+  transition:height 0.05s linear;
+}
+
+/* ── VIDEO / CANVAS SECTION ── */
+#video-section{
+  position:relative;height:800vh;
+}
+#canvas-sticky{
+  position:sticky;top:0;width:100vw;height:100vh;overflow:hidden;
+}
+#vine-canvas{
+  display:block;width:100%;height:100%;
+  background:var(--bg);position:absolute;inset:0;z-index:0;
+}
+/* Permanent dark vignette — ensures text always has contrast regardless of frame */
+#canvas-sticky::before{
+  content:'';
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    /* header band — always dark so nav is readable */
+    linear-gradient(to bottom, rgba(13,6,8,0.72) 0%, rgba(13,6,8,0) 18%),
+    /* bottom band */
+    linear-gradient(to top, rgba(13,6,8,0.55) 0%, rgba(13,6,8,0) 20%),
+    /* left edge — text area */
+    linear-gradient(to right, rgba(13,6,8,0.60) 0%, rgba(13,6,8,0) 30%),
+    /* right edge — text area */
+    linear-gradient(to left, rgba(13,6,8,0.60) 0%, rgba(13,6,8,0) 30%),
+    /* centre radial — darkens corners, keeps subject clear */
+    radial-gradient(ellipse at 50% 50%, rgba(13,6,8,0) 28%, rgba(13,6,8,0.42) 100%);
+}
+
+/* ── TEXT OVERLAYS ── */
+.overlay{
+  position:absolute;pointer-events:none;z-index:2;
+  transition:opacity 0.8s ease;
+  text-shadow:
+    0 2px 8px rgba(0,0,0,1),
+    0 0 32px rgba(0,0,0,0.98),
+    0 0 80px rgba(0,0,0,0.85);
+}
+.overlay.hidden{opacity:0 !important}
+
+/* Scene 1 */
+#ov-patience{
+  top:30%;left:0;right:0;text-align:center;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(48px,6.5vw,84px);
+  color:#FFFFFF;
+}
+#ov-estate-name{
+  top:46%;left:0;right:0;text-align:center;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:13px;text-transform:uppercase;
+  color:#FFFFFF;letter-spacing:0.5em;font-weight:500;
+  text-shadow:0 1px 14px rgba(0,0,0,1),0 0 40px rgba(0,0,0,0.98);
+}
+#ov-gold-line{
+  top:53%;left:50%;transform:translateX(-50%);
+  width:80px;height:1px;background:var(--gold);
+  animation:goldPulse 2.4s ease-in-out infinite;
+}
+@keyframes goldPulse{0%,100%{opacity:0.3}50%{opacity:0.9}}
+
+/* Scene 2 */
+#ov-decision-headline{
+  top:20%;left:7%;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(40px,5.5vw,68px);
+  color:#FFFFFF;
+  max-width:58%;line-height:1.2;
+}
+#ov-decision-headline span{opacity:0;transition:opacity 0.6s ease;display:inline;}
+#ov-decision-body{
+  top:18%;right:7%;width:300px;max-width:300px;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:16px;color:#FFFFFF;line-height:2.0;
+  font-weight:400;
+}
+#ov-decision-body p{opacity:0;transition:opacity 0.6s ease;}
+
+/* Scene 3 */
+#ov-abundance-1{
+  top:20%;left:0;right:0;text-align:center;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(42px,6vw,76px);
+  color:#FFFFFF;
+}
+#ov-abundance-2{
+  top:34%;left:0;right:0;text-align:center;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(42px,6vw,76px);
+  color:#FFFFFF;
+}
+#ov-abundance-3{
+  top:48%;left:0;right:0;text-align:center;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(42px,6vw,76px);
+  color:#FFFFFF;
+}
+#ov-estate-grown{
+  top:63%;left:0;right:0;text-align:center;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:12px;text-transform:uppercase;
+  color:#FFFFFF;letter-spacing:0.45em;font-weight:500;
+  text-shadow:0 1px 14px rgba(0,0,0,1),0 0 40px rgba(0,0,0,0.98);
+}
+
+/* Scene 4 */
+#ov-cut{
+  top:18%;right:7%;text-align:right;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(38px,5vw,64px);
+  color:#FFFFFF;
+  transition:opacity 0.8s ease,transform 0.8s ease;
+}
+#ov-cut.hidden{opacity:0;transform:translateX(30px)}
+#ov-cut.visible{opacity:1;transform:translateX(0)}
+#ov-labels{
+  top:42%;left:7%;
+  display:flex;flex-direction:column;gap:28px;
+}
+.ov-label-row{
+  display:flex;align-items:center;gap:14px;
+  opacity:0;transition:opacity 0.6s ease;
+}
+.ov-label-bar{
+  width:28px;height:1px;background:var(--gold-light);flex-shrink:0;
+  box-shadow:0 0 8px rgba(0,0,0,0.9);
+}
+.ov-label-text{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:13px;text-transform:uppercase;
+  color:#FFFFFF;letter-spacing:0.35em;font-weight:500;
+  text-shadow:0 1px 12px rgba(0,0,0,1),0 0 28px rgba(0,0,0,1),0 0 56px rgba(0,0,0,0.9);
+}
+
+/* Scene 5 — emotional centrepiece */
+#ov-wait{
+  top:28%;left:0;right:0;text-align:center;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(52px,8vw,104px);
+  color:#FFFFFF;
+  line-height:1.15;
+}
+
+/* Scene 6 */
+#ov-oak{
+  top:18%;left:7%;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(38px,5vw,64px);
+  color:#FFFFFF;max-width:52%;line-height:1.2;
+}
+#ov-cellar-body{
+  top:18%;right:7%;width:300px;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:16px;color:#FFFFFF;line-height:2.0;
+  font-weight:400;
+}
+#ov-cellar-body p{opacity:0;transition:opacity 0.6s ease;}
+#ov-explore-btn{
+  position:absolute;top:60%;right:7%;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-size:16px;text-transform:uppercase;color:var(--gold-light);
+  letter-spacing:0.2em;
+  background:rgba(13,6,8,0.62);
+  border:1px solid rgba(201,168,76,0.65);
+  padding:14px 40px;border-radius:0;cursor:pointer;
+  pointer-events:auto;text-decoration:none;
+  transition:background 0.3s,opacity 0.8s;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+#ov-explore-btn:hover{background:rgba(13,6,8,0.80)}
+
+/* Scene 7 */
+#ov-pour{
+  top:26%;left:0;right:0;text-align:center;
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(48px,7vw,92px);
+  color:#FFFFFF;line-height:1.15;
+}
+#ov-discover-btn{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-size:16px;text-transform:uppercase;color:var(--gold-light);
+  letter-spacing:0.2em;
+  background:rgba(13,6,8,0.62);
+  border:1px solid rgba(201,168,76,0.65);
+  padding:14px 40px;border-radius:0;cursor:pointer;
+  pointer-events:auto;text-decoration:none;
+  transition:background 0.3s;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+#ov-discover-btn.pulsing{animation:discoverPulse 1.8s ease-in-out infinite}
+#ov-discover-btn:hover{background:rgba(13,6,8,0.80)}
+@keyframes discoverPulse{0%,100%{opacity:0.75}50%{opacity:1.0}}
+
+/* ── BELOW FOLD ── */
+#content{background:var(--bg-section)}
+
+/* Transition bridge */
+.section-bridge{
+  background:var(--bg-section);
+  padding:100px 0;text-align:center;
+}
+.section-bridge blockquote{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(22px,3vw,36px);
+  color:var(--gold);max-width:680px;margin:0 auto;
+  padding:0 24px;line-height:1.5;
+}
+
+/* Wines section */
+.section-wines{
+  background:var(--bg-alt);
+  padding:120px 0;
+}
+.section-eyebrow{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:10px;text-transform:uppercase;
+  color:var(--gold);letter-spacing:0.4em;
+  text-align:center;margin-bottom:16px;
+}
+.section-headline{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;
+  text-align:center;
+}
+.wines-headline{
+  font-size:clamp(32px,4.5vw,56px);
+  color:var(--espresso);margin-bottom:72px;
+}
+.wines-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+  max-width:1200px;margin:0 auto;padding:0 48px;
+}
+@media(max-width:900px){.wines-grid{grid-template-columns:1fr;padding:0 24px}}
+.wine-card{
+  background:var(--bg-section);
+  border-top:2px solid var(--gold);
+  border:1px solid rgba(201,168,76,0.2);
+  border-top:2px solid var(--gold);
+  padding:0 0 48px 0;border-radius:0;
+  position:relative;overflow:hidden;
+  transition:transform 0.4s cubic-bezier(0.16,1,0.3,1),
+    box-shadow 0.4s cubic-bezier(0.16,1,0.3,1),
+    border-top-color 0.4s;
+}
+.wine-card:hover{
+  transform:translateY(-8px);
+  box-shadow:0 20px 48px rgba(42,16,8,0.10);
+  border-top-color:var(--gold-light);
+}
+.wine-card-img{
+  height:240px;width:100%;object-fit:cover;display:block;
+  background:linear-gradient(135deg,#2A1008 0%,#6B1A2A 100%);
+  position:relative;
+}
+.wine-img-fade{
+  position:absolute;bottom:0;left:0;right:0;height:120px;
+  background:linear-gradient(to bottom,transparent 0%,var(--bg-section) 100%);
+}
+.wine-card-img-wrap{position:relative;height:240px;overflow:hidden;background:#1a0a04}
+.wine-card-name{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-weight:700;font-size:64px;
+  padding:0 40px;margin-top:32px;line-height:1;
+}
+.wine-card-name.gold{color:var(--gold)}
+.wine-card-name.dark{color:var(--espresso)}
+.wine-card-varietal{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:11px;text-transform:uppercase;color:#5A4A3A;
+  letter-spacing:0.2em;margin-top:8px;padding:0 40px;
+}
+.wine-card-vintage{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-size:20px;color:var(--espresso);
+  padding:0 40px;margin-top:8px;
+}
+.wine-card-notes{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:14px;color:#4A3828;line-height:1.8;
+  padding:0 40px;margin-top:16px;
+}
+.wine-card-price{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-size:28px;color:var(--espresso);
+  padding:0 40px;margin-top:24px;
+}
+.wine-card-btn{
+  display:inline-block;margin:24px 40px 0;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:11px;text-transform:uppercase;color:var(--gold);
+  letter-spacing:0.15em;border:1px solid rgba(201,168,76,0.4);
+  padding:12px 28px;border-radius:0;background:transparent;
+  cursor:pointer;transition:background 0.3s;text-decoration:none;
+}
+.wine-card-btn:hover{background:rgba(201,168,76,0.08)}
+.wine-badge{
+  position:absolute;top:16px;right:16px;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:9px;text-transform:uppercase;color:#FAF5EE;
+  background:rgba(42,16,8,0.82);padding:5px 12px;letter-spacing:0.15em;
+  border:1px solid rgba(201,168,76,0.35);
+}
+
+/* Winery story / merlot section */
+.section-story{
+  background:var(--merlot);
+  padding:120px 0;
+}
+.story-inner{
+  max-width:1200px;margin:0 auto;padding:0 48px;
+  display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:center;
+}
+@media(max-width:900px){.story-inner{grid-template-columns:1fr;padding:0 24px}}
+.story-portrait{
+  width:100%;height:580px;object-fit:cover;display:block;
+  filter:sepia(8%) contrast(1.02);
+  background:linear-gradient(160deg,#4a0e18 0%,#2a0608 100%);
+}
+.story-right{padding-left:80px}
+@media(max-width:900px){.story-right{padding-left:0;margin-top:48px}}
+.story-eyebrow{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:10px;text-transform:uppercase;color:var(--gold);
+  letter-spacing:0.4em;margin-bottom:28px;
+}
+.story-quote{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-size:clamp(28px,3.5vw,44px);
+  color:#FAF5EE;line-height:1.4;
+}
+.story-name{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:14px;font-weight:700;color:var(--gold);
+  margin-top:40px;
+}
+.story-role{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:12px;color:rgba(242,235,217,0.78);
+  margin-top:4px;
+}
+.story-btn{
+  display:inline-block;margin-top:48px;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:11px;text-transform:uppercase;color:#FAF5EE;
+  letter-spacing:0.15em;border:1px solid rgba(201,168,76,0.4);
+  padding:14px 40px;border-radius:0;background:transparent;
+  cursor:pointer;transition:background 0.3s;text-decoration:none;
+}
+.story-btn:hover{background:rgba(201,168,76,0.15)}
+
+/* Visit section */
+.section-visit{
+  background:var(--bg-section);
+  padding:120px 0;
+}
+.visit-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:24px;
+  max-width:1200px;margin:72px auto 0;padding:0 48px;
+}
+@media(max-width:768px){.visit-grid{grid-template-columns:1fr;padding:0 24px}}
+.visit-card{
+  background:#fff;border-top:2px solid var(--gold);
+  padding:40px;border-radius:0;
+  transition:transform 0.4s ease,box-shadow 0.4s ease;
+}
+.visit-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 16px 40px rgba(42,16,8,0.08);
+}
+.visit-card-title{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-weight:700;font-size:32px;color:var(--gold);
+}
+.visit-card-desc{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:14px;color:#4A3828;line-height:1.8;
+  margin-top:12px;
+}
+.visit-card-link{
+  display:inline-block;margin-top:24px;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:12px;text-transform:uppercase;color:var(--gold);
+  letter-spacing:0.15em;text-decoration:none;
+  transition:letter-spacing 0.3s;
+}
+.visit-card-link:hover{letter-spacing:0.2em}
+
+/* Newsletter */
+.section-newsletter{
+  background-image:
+    linear-gradient(to bottom,
+      rgba(13,6,8,0.90) 0%,
+      rgba(13,6,8,0.65) 35%,
+      rgba(13,6,8,0.68) 65%,
+      rgba(13,6,8,0.94) 100%);
+  background-size:cover;background-position:center;
+  background-attachment:fixed;
+  padding:160px 0;text-align:center;
+}
+.newsletter-eyebrow{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:10px;text-transform:uppercase;
+  color:var(--gold);letter-spacing:0.4em;margin-bottom:20px;
+}
+.newsletter-headline{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:clamp(32px,4vw,52px);
+  color:var(--parchment);
+}
+.newsletter-sub{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:14px;color:rgba(242,235,217,0.82);
+  margin-top:16px;
+}
+#email-input{
+  display:block;margin:40px auto 0;
+  width:300px;max-width:90vw;
+  background:transparent;border:none;
+  border-bottom:1px solid rgba(201,168,76,0.5);
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:14px;color:var(--parchment);
+  padding:12px 0;outline:none;
+  transition:border-bottom-color 0.3s;
+}
+#email-input::placeholder{color:rgba(242,235,217,0.55)}
+#email-input:focus{border-bottom-color:var(--gold-light)}
+#join-btn{
+  display:block;margin:24px auto 0;
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:12px;text-transform:uppercase;color:var(--gold);
+  letter-spacing:0.25em;background:transparent;border:none;
+  cursor:pointer;transition:letter-spacing 0.3s;
+}
+#join-btn:hover{letter-spacing:0.35em}
+
+/* Footer */
+footer{
+  background:#0D0608;
+  padding:64px 0;
+  border-top:1px solid rgba(201,168,76,0.15);
+}
+.footer-inner{
+  max-width:1200px;margin:0 auto;padding:0 48px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  align-items:center;
+}
+@media(max-width:768px){.footer-inner{grid-template-columns:1fr;gap:32px;padding:0 24px}}
+.footer-logo{
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-style:italic;font-weight:700;font-size:22px;
+  color:var(--gold);letter-spacing:0.1em;
+}
+.footer-copy{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:11px;color:rgba(242,235,217,0.72);margin-top:8px;
+}
+.footer-small{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:10px;color:rgba(242,235,217,0.42);margin-top:4px;
+}
+.footer-centre{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:11px;color:rgba(242,235,217,0.72);
+  letter-spacing:0.15em;text-align:center;
+}
+.footer-right{
+  display:flex;gap:24px;justify-content:flex-end;
+}
+.footer-right a{
+  font-family:"DM Sans",system-ui,sans-serif;
+  font-size:11px;color:rgba(242,235,217,0.72);
+  text-decoration:none;transition:color 0.3s;
+}
+.footer-right a:hover{color:var(--gold)}
+
+/* Floating CTA */
+#float-btn{
+  position:fixed;bottom:28px;right:28px;z-index:300;
+  width:56px;height:56px;border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 4px 20px rgba(201,168,76,0.4);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.3s;text-decoration:none;
+}
+#float-btn:hover{transform:scale(1.08)}
+#float-btn svg{width:28px;height:28px;fill:white}
+
+/* Utility */
+.container{max-width:1200px;margin:0 auto;padding:0 48px}
+@media(max-width:768px){.container{padding:0 24px}}
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading">
+  <div id="loading-estate">Estate</div>
+  <div id="loading-winery">Winery</div>
+  <div id="loading-bar-wrap"><div id="loading-bar-fill"></div></div>
+  <div id="loading-text">Preparing your vintage…</div>
+</div>
+
+<!-- SCROLL PROGRESS -->
+<div id="scroll-progress"><div id="scroll-progress-fill"></div></div>
+
+<!-- HEADER -->
+<header id="header">
+  <a href="#" id="header-logo">Estate</a>
+  <nav id="header-nav">
+    <a href="#wines">Wines</a>
+    <a href="#cellar">Cellar</a>
+    <a href="#visit">Visit</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <a href="#visit" id="header-cta">Reserve a Visit</a>
+</header>
+
+<!-- VIDEO SECTION -->
+<section id="video-section">
+  <div id="canvas-sticky">
+    <canvas id="vine-canvas"></canvas>
+
+    <!-- Overlay 1: Arrival -->
+    <div class="overlay hidden" id="ov-patience">Patience is the first ingredient.</div>
+    <div class="overlay hidden" id="ov-estate-name">Estate Winery</div>
+    <div class="overlay" id="ov-gold-line" style="opacity:0"></div>
+
+    <!-- Overlay 2: Decision headline + body -->
+    <div class="overlay hidden" id="ov-decision-headline">
+      <span id="w-every">Every </span><span id="w-great">great </span><span id="w-wine">wine </span><span id="w-begins">begins </span><span id="w-with">with </span><span id="w-a-single">a single </span><span id="w-decision">decision </span><span id="w-to-wait">to wait.</span>
+    </div>
+    <div class="overlay hidden" id="ov-decision-body">
+      <p id="db1">At Estate, we don't rush the vine. We listen to it.</p>
+      <p id="db2" style="margin-top:8px">Every bud break is a promise.</p>
+      <p id="db3" style="margin-top:8px">Every cluster a year of patience made visible.</p>
+    </div>
+
+    <!-- Overlay 3: Abundance -->
+    <div class="overlay hidden" id="ov-abundance-1">Twelve months of sunlight.</div>
+    <div class="overlay hidden" id="ov-abundance-2">Captured in</div>
+    <div class="overlay hidden" id="ov-abundance-3">a single cluster.</div>
+    <div class="overlay hidden" id="ov-estate-grown">Estate Grown · Hand Harvested · Single Vineyard</div>
+
+    <!-- Overlay 4: The Cut -->
+    <div class="overlay hidden" id="ov-cut">The cut that defines the vintage.</div>
+    <div class="overlay hidden" id="ov-labels">
+      <div class="ov-label-row" id="label-reserve"><div class="ov-label-bar"></div><div class="ov-label-text">Reserve</div></div>
+      <div class="ov-label-row" id="label-sv"><div class="ov-label-bar"></div><div class="ov-label-text">Single Vineyard</div></div>
+      <div class="ov-label-row" id="label-blanc"><div class="ov-label-bar"></div><div class="ov-label-text">Blanc</div></div>
+    </div>
+
+    <!-- Overlay 5: Emotional centrepiece -->
+    <div class="overlay hidden" id="ov-wait">Now it waits. So do we.</div>
+
+    <!-- Overlay 6: Oak / cellar -->
+    <div class="overlay hidden" id="ov-oak">Eighteen months in French oak. Then it is yours.</div>
+    <div class="overlay hidden" id="ov-cellar-body">
+      <p id="cb1">Our wines rest in 100% French oak barriques</p>
+      <p id="cb2" style="margin-top:8px">in our underground cellar.</p>
+      <p id="cb3" style="margin-top:8px">The winemaker tastes every barrel weekly.</p>
+      <p id="cb4" style="margin-top:8px">Bottling happens only when the wine decides it is ready.</p>
+    </div>
+    <a href="#wines" id="ov-explore-btn" class="overlay hidden">Explore the Vintage →</a>
+
+    <!-- Overlay 7: Pour -->
+    <div class="overlay hidden" id="ov-pour">Years of patience. One perfect pour.</div>
+    <a href="#wines" id="ov-discover-btn" class="overlay hidden" style="opacity:0">Discover the Vintage →</a>
+  </div>
+</section>
+
+<!-- BELOW FOLD -->
+<div id="content">
+
+  <!-- Bridge -->
+  <section class="section-bridge">
+    <blockquote>"The land remembers. Every vintage tells you what the year was."</blockquote>
+  </section>
+
+  <!-- Wines -->
+  <section class="section-wines" id="wines">
+    <p class="section-eyebrow">The Wines</p>
+    <h2 class="section-headline wines-headline">Three wines. One estate.</h2>
+    <div class="wines-grid">
+
+      <!-- Reserve -->
+      <div class="wine-card">
+        <div class="wine-card-img-wrap">
+          <div class="wine-card-img" style="background:linear-gradient(160deg,#3a0c10 0%,#1a0604 100%)"></div>
+          <div class="wine-img-fade"></div>
+        </div>
+        <div class="wine-card-name gold">Reserve</div>
+        <div class="wine-card-varietal">Cabernet Sauvignon</div>
+        <div class="wine-card-vintage">2021</div>
+        <div class="wine-card-notes">Dark cherry and cassis with notes of cedar, graphite, and a whisper of vanilla from 22 months in French oak. Long, structured finish.</div>
+        <div class="wine-card-price">$89 per bottle</div>
+        <a href="#" class="wine-card-btn">Add to Cart</a>
+      </div>
+
+      <!-- Single Vineyard -->
+      <div class="wine-card" style="position:relative">
+        <span class="wine-badge">Best Vintage</span>
+        <div class="wine-card-img-wrap">
+          <div class="wine-card-img" style="background:linear-gradient(160deg,#6B1A2A 0%,#2a0608 100%)"></div>
+          <div class="wine-img-fade"></div>
+        </div>
+        <div class="wine-card-name gold">Single<br>Vineyard</div>
+        <div class="wine-card-varietal">Pinot Noir</div>
+        <div class="wine-card-vintage">2020</div>
+        <div class="wine-card-notes">Ethereal red fruit, forest floor, and dried rose petal. A wine of extraordinary precision from our oldest block, planted 1978.</div>
+        <div class="wine-card-price">$124 per bottle</div>
+        <a href="#" class="wine-card-btn">Add to Cart</a>
+      </div>
+
+      <!-- Blanc -->
+      <div class="wine-card">
+        <div class="wine-card-img-wrap">
+          <div class="wine-card-img" style="background:linear-gradient(160deg,#8B7A4A 0%,#3A2A10 100%)"></div>
+          <div class="wine-img-fade"></div>
+        </div>
+        <div class="wine-card-name dark">Blanc</div>
+        <div class="wine-card-varietal">Chardonnay</div>
+        <div class="wine-card-vintage">2022</div>
+        <div class="wine-card-notes">White peach, lemon curd, and toasted brioche. Fermented in barrel with weekly bâtonnage. Rich yet precise, with a mineral, saline finish.</div>
+        <div class="wine-card-price">$68 per bottle</div>
+        <a href="#" class="wine-card-btn">Add to Cart</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Story / Merlot section -->
+  <section class="section-story" id="cellar">
+    <div class="story-inner">
+      <div class="story-portrait"></div>
+      <div class="story-right">
+        <div class="story-eyebrow">The Winemaker</div>
+        <div class="story-quote">
+          "Terroir is not a place.<br>
+          It is a conversation between the vine,<br>
+          the weather, and the year.<br>
+          We simply listen and translate."
+        </div>
+        <div class="story-name">Isabelle Moreau</div>
+        <div class="story-role">Head Winemaker — Estate Winery</div>
+        <a href="#visit" class="story-btn">Book a Cellar Visit →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Visit -->
+  <section class="section-visit" id="visit">
+    <div class="container">
+      <p class="section-eyebrow">Come to the Estate</p>
+      <h2 class="section-headline" style="font-size:clamp(30px,4vw,52px);color:var(--espresso)">Come to the source.</h2>
+    </div>
+    <div class="visit-grid">
+      <div class="visit-card">
+        <div class="visit-card-title">Tasting Room</div>
+        <div class="visit-card-desc">An hour with our wines.<br>Private tastings by appointment. Three wines. One estate.</div>
+        <a href="#" class="visit-card-link">Learn more →</a>
+      </div>
+      <div class="visit-card">
+        <div class="visit-card-title">Cellar Tour</div>
+        <div class="visit-card-desc">Where patience lives.<br>Walk our underground barrel cellar with the winemaker.</div>
+        <a href="#" class="visit-card-link">Learn more →</a>
+      </div>
+      <div class="visit-card">
+        <div class="visit-card-title">Harvest Experience</div>
+        <div class="visit-card-desc">One week in September.<br>Pick alongside our team. The most honest hour in wine.</div>
+        <a href="#" class="visit-card-link">Learn more →</a>
+      </div>
+      <div class="visit-card">
+        <div class="visit-card-title">Private Dining</div>
+        <div class="visit-card-desc">The table beneath the vines.<br>Six guests. Six courses. The vintage you help choose.</div>
+        <a href="#" class="visit-card-link">Learn more →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="section-newsletter" id="contact">
+    <div class="newsletter-eyebrow">The Vintage List</div>
+    <div class="newsletter-headline">Join the vintage list.</div>
+    <div class="newsletter-sub">First access to new releases. No noise. Only wine.</div>
+    <input type="email" id="email-input" placeholder="Your email address">
+    <button id="join-btn">Join →</button>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <div class="footer-logo">Estate</div>
+        <div class="footer-copy">© 2026 Estate Winery. Rooted in the land.</div>
+        <div class="footer-small">Please drink responsibly.</div>
+      </div>
+      <div class="footer-centre">Reserve · Single Vineyard · Blanc</div>
+      <div class="footer-right">
+        <a href="#">Instagram</a>
+        <a href="#">Wine Club</a>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /content -->
+
+<!-- Floating contact button -->
+<a href="tel:YOUR-NUMBER" id="float-btn" aria-label="Call us">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.47 11.47 0 003.58.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.47 11.47 0 00.57 3.58 1 1 0 01-.25 1.01l-2.2 2.2z"/>
+  </svg>
+</a>
+
+<script>
+(function(){
+'use strict';
+
+/* ── CONFIG ── */
+const VIDEO_SRC = 'winery-story-final.mp4';
+
+/* ── ELEMENTS ── */
+const loading      = document.getElementById('loading');
+const loadingBar   = document.getElementById('loading-bar-fill');
+const canvas       = document.getElementById('vine-canvas');
+const ctx          = canvas.getContext('2d');
+const header       = document.getElementById('header');
+const progressFill = document.getElementById('scroll-progress-fill');
+const videoSection = document.getElementById('video-section');
+
+/* ── STATE ── */
+let frames       = [];
+let totalFrames  = 0;
+let rafPending   = false;
+let lastProgress = -1;
+
+/* ── CANVAS RESIZE ── */
+function resizeCanvas(){
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  drawFrame(lastProgress < 0 ? 0 : lastProgress);
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+/* ── DRAW ── */
+function drawFrame(progress){
+  if(!totalFrames) return;
+  const idx = Math.min(Math.floor(progress * (totalFrames - 1)), totalFrames - 1);
+  const img = frames[idx];
+  if(!img) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#0D0608';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+  const w = img.width * scale, h = img.height * scale;
+  const x = (canvas.width  - w) / 2;
+  const y = (canvas.height - h) / 2;
+  ctx.drawImage(img, x, y, w, h);
+}
+
+/* ── EXTRACT FRAMES ── */
+function extractFrames(video){
+  return new Promise(resolve => {
+    const offCanvas = document.createElement('canvas');
+    const offCtx    = offCanvas.getContext('2d');
+    const duration  = video.duration;
+    /* target ~240 frames for smoothness */
+    const TARGET    = 240;
+    const interval  = duration / TARGET;
+    const captured  = [];
+    let   current   = 0;
+
+    function capture(){
+      if(current > duration + 0.01){ resolve(captured); return; }
+      video.currentTime = current;
+    }
+
+    video.addEventListener('seeked', function onSeeked(){
+      offCanvas.width  = video.videoWidth  || 1280;
+      offCanvas.height = video.videoHeight || 720;
+      offCtx.drawImage(video, 0, 0, offCanvas.width, offCanvas.height);
+      const img    = new Image();
+      img.src      = offCanvas.toDataURL('image/jpeg', 0.85);
+      img.onload   = () => {
+        captured.push(img);
+        const pct = Math.min(captured.length / TARGET, 1);
+        loadingBar.style.width = (pct * 100) + '%';
+        current += interval;
+        if(current > duration + 0.01){
+          video.removeEventListener('seeked', onSeeked);
+          resolve(captured);
+        } else {
+          capture();
+        }
+      };
+    });
+    capture();
+  });
+}
+
+/* ── LOAD VIDEO ── */
+function initVideo(){
+  const video = document.createElement('video');
+  video.src         = VIDEO_SRC;
+  video.muted       = true;
+  video.playsInline = true;
+  video.preload     = 'auto';
+
+  video.addEventListener('error', () => {
+    /* No video — show a placeholder gradient and finish loading */
+    console.warn('Video not found — running in preview mode');
+    loadingBar.style.width = '100%';
+    finishLoading([]);
+  });
+
+  video.addEventListener('loadedmetadata', async () => {
+    const extracted = await extractFrames(video);
+    finishLoading(extracted);
+  });
+
+  video.load();
+}
+
+function finishLoading(extracted){
+  frames      = extracted;
+  totalFrames = frames.length;
+  loadingBar.style.width = '100%';
+  setTimeout(() => {
+    loading.classList.add('fade-out');
+    setTimeout(() => { loading.style.display = 'none'; }, 1400);
+  }, 400);
+}
+
+/* ── SCROLL LOGIC ── */
+function getScrollProgress(){
+  const rect = videoSection.getBoundingClientRect();
+  const totalScroll = videoSection.offsetHeight - window.innerHeight;
+  const scrolled    = -rect.top;
+  return Math.max(0, Math.min(1, scrolled / totalScroll));
+}
+
+function pct(p){ return p / 100; }
+
+/* clamp 0-1 then map to opacity */
+function fadeIn(progress, start, end){
+  if(progress < start) return 0;
+  if(progress > end)   return 1;
+  return (progress - start) / (end - start);
+}
+function fadeOut(progress, start, end){
+  if(progress < start) return 1;
+  if(progress > end)   return 0;
+  return 1 - (progress - start) / (end - start);
+}
+function window01(progress, inStart, inEnd, outStart, outEnd){
+  return Math.min(fadeIn(progress, inStart, inEnd), fadeOut(progress, outStart, outEnd));
+}
+
+const words = [
+  { id:'w-every',    show: pct(8)   },
+  { id:'w-great',    show: pct(9.5) },
+  { id:'w-wine',     show: pct(11)  },
+  { id:'w-begins',   show: pct(12.5)},
+  { id:'w-with',     show: pct(14)  },
+  { id:'w-a-single', show: pct(15.5)},
+  { id:'w-decision', show: pct(17)  },
+  { id:'w-to-wait',  show: pct(18)  },
+];
+
+function updateOverlays(p){
+  /* ─ Scroll progress bar ─ */
+  progressFill.style.height = (p * 100) + '%';
+
+  /* ─ Header ─ */
+  const inContent = p >= 1;
+  header.classList.toggle('cream', inContent);
+
+  /* ─ Scene 1: 0–13% ─ */
+  const s1 = window01(p, pct(0), pct(1), pct(8), pct(13));
+  setOv('ov-patience',   s1);
+  setOv('ov-estate-name',s1);
+  setOvRaw('ov-gold-line', s1);
+
+  /* ─ Scene 2: 8–22% ─ */
+  const s2base = window01(p, pct(8), pct(8.5), pct(21), pct(22));
+  setOv('ov-decision-headline', s2base);
+  setOv('ov-decision-body',     s2base);
+
+  words.forEach(w => {
+    const el = document.getElementById(w.id);
+    if(!el) return;
+    el.style.opacity = p >= w.show && p < pct(22) ? '1' : '0';
+  });
+
+  const bodyLines = [
+    { id:'db1', at: pct(12)          },
+    { id:'db2', at: pct(12) + 0.004  },
+    { id:'db3', at: pct(12) + 0.008  },
+  ];
+  bodyLines.forEach(b => {
+    const el = document.getElementById(b.id);
+    if(!el) return;
+    const op = p >= b.at && p < pct(22) ? fadeIn(p, b.at, b.at + 0.01) : (p >= pct(22) ? 0 : 0);
+    el.style.opacity = op;
+  });
+
+  /* ─ Scene 3: 22–38% ─ */
+  setOv('ov-abundance-1',  window01(p, pct(22), pct(23),  pct(37), pct(38)));
+  setOv('ov-abundance-2',  window01(p, pct(26), pct(27),  pct(37), pct(38)));
+  setOv('ov-abundance-3',  window01(p, pct(30), pct(31),  pct(37), pct(38)));
+  setOv('ov-estate-grown', window01(p, pct(32), pct(33),  pct(37), pct(38)));
+
+  /* ─ Scene 4: 38–52% ─ */
+  const s4 = window01(p, pct(38), pct(39), pct(51), pct(52));
+  const cutEl = document.getElementById('ov-cut');
+  if(cutEl){
+    cutEl.style.opacity   = s4;
+    cutEl.style.transform = s4 > 0 ? 'translateX(0)' : 'translateX(30px)';
+  }
+  setOv('ov-labels', s4);
+  setLabel('label-reserve', p, pct(40));
+  setLabel('label-sv',      p, pct(43));
+  setLabel('label-blanc',   p, pct(46));
+
+  /* ─ Scene 5: 52–68% ─ */
+  setOv('ov-wait', window01(p, pct(52), pct(53), pct(67), pct(68)));
+
+  /* ─ Scene 6: 68–82% ─ */
+  const s6 = window01(p, pct(68), pct(69), pct(81), pct(82));
+  setOv('ov-oak', s6);
+  setOv('ov-cellar-body', s6);
+  const cellarLines = [
+    { id:'cb1', at: pct(70)         },
+    { id:'cb2', at: pct(70) + 0.005 },
+    { id:'cb3', at: pct(70) + 0.010 },
+    { id:'cb4', at: pct(70) + 0.015 },
+  ];
+  cellarLines.forEach(b => {
+    const el = document.getElementById(b.id);
+    if(!el) return;
+    el.style.opacity = p >= b.at && p < pct(82) ? fadeIn(p, b.at, b.at + 0.01) : (p >= pct(82) ? 0 : 0);
+  });
+  setOv('ov-explore-btn', window01(p, pct(72), pct(73), pct(99.5), pct(100)));
+
+  /* ─ Scene 7: 82–100% ─ */
+  setOv('ov-pour', window01(p, pct(82), pct(83), pct(93), pct(94)));
+
+  const discoverEl = document.getElementById('ov-discover-btn');
+  if(discoverEl){
+    const show = p >= pct(95);
+    discoverEl.classList.toggle('hidden', !show);
+    discoverEl.classList.toggle('pulsing', show);
+    if(!show) discoverEl.style.opacity = '0';
+    else discoverEl.style.removeProperty('opacity');
+  }
+}
+
+function setOv(id, opacity){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.opacity = opacity;
+  el.classList.toggle('hidden', opacity === 0);
+}
+function setOvRaw(id, opacity){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.opacity = opacity;
+}
+function setLabel(id, p, showAt){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.opacity = p >= showAt && p < pct(52) ? fadeIn(p, showAt, showAt + 0.01) : (p >= pct(52) ? 0 : 0);
+}
+
+/* ── GLOBAL SCROLL HANDLER ── */
+window.addEventListener('scroll', () => {
+  if(rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => {
+    rafPending = false;
+    const p = getScrollProgress();
+    lastProgress = p;
+    drawFrame(p);
+    updateOverlays(p);
+
+    /* page progress bar when outside video */
+    const totalH    = document.body.scrollHeight - window.innerHeight;
+    const globalPct = window.scrollY / totalH;
+    if(p >= 1) progressFill.style.height = (globalPct * 100) + '%';
+  });
+}, { passive: true });
+
+/* ── INIT ── */
+initVideo();
+
+})();
+</script>
+</body>
+</html>
