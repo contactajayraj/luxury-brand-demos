@@ -175,12 +175,6 @@ body{
   color:#FFFFFF;letter-spacing:0.5em;font-weight:500;
   text-shadow:0 1px 14px rgba(0,0,0,1),0 0 40px rgba(0,0,0,0.98);
 }
-#ov-gold-line{
-  top:53%;left:50%;transform:translateX(-50%);
-  width:80px;height:1px;background:var(--gold);
-  animation:goldPulse 2.4s ease-in-out infinite;
-}
-@keyframes goldPulse{0%,100%{opacity:0.3}50%{opacity:0.9}}
 
 /* Scene 2 */
 #ov-decision-headline{
@@ -647,7 +641,6 @@ footer{
     <!-- Overlay 1: Arrival -->
     <div class="overlay hidden" id="ov-patience">Patience is the first ingredient.</div>
     <div class="overlay hidden" id="ov-estate-name">Estate Winery</div>
-    <div class="overlay" id="ov-gold-line" style="opacity:0"></div>
 
     <!-- Overlay 2: Decision headline + body -->
     <div class="overlay hidden" id="ov-decision-headline">
@@ -1003,7 +996,7 @@ function updateOverlays(p){
   const s1 = window01(p, pct(0), pct(1), pct(8), pct(13));
   setOv('ov-patience',   s1);
   setOv('ov-estate-name',s1);
-  setOvRaw('ov-gold-line', s1);
+
 
   /* ─ Scene 2: 8–22% ─ */
   const s2base = window01(p, pct(8), pct(8.5), pct(21), pct(22));
